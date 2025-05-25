@@ -1,0 +1,38 @@
+{
+  "name": "scan_infeksi",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "vercel-build": "echo hello",
+    "dev": "nodemon index.js",
+    "generate": "drizzle-kit generate:pg",
+    "migrate": "node -r dotenv/config db/migrate.js",
+    "studio": "drizzle-kit studio"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@hapi/hapi": "^21.3.2",
+    "@supabase/supabase-js": "^2.49.8",
+    "@tensorflow/tfjs": "^4.17.0",
+    "@tensorflow/tfjs-node": "^4.17.0",
+    "@types/pg": "^8.15.2",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.3.1",
+    "drizzle-kit": "^0.20.13",
+    "drizzle-orm": "^0.29.3",
+    "hapi-auth-jwt2": "^11.0.0",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.11.3",
+    "sharp": "^0.33.2",
+    "axios": "^1.6.7",
+    "form-data": "^4.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
