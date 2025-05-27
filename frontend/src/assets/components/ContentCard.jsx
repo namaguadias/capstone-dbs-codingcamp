@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import ContentCardPresenter from "./ContentCard-Presenter";
+import React, { useState, useEffect } from 'react';
+import ContentCardPresenter from './ContentCard-Presenter';
 
 const ContentCard = ({ title, content, popupContent }) => {
   const [isHovered, setIsHovered] = useState(false);

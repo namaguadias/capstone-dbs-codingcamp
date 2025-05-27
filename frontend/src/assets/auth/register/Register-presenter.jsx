@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react";
-import AuthPresenter from "../../../presenters/Authpresenter.js";
+import { useState, useEffect } from 'react';
+import AuthPresenter from '../../../presenters/Authpresenter.js';
 
 export default function RegisterPresenter({ children }) {
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    age: "",
-    address: "",
-    gender: "",
+    name: '',
+    email: '',
+    password: '',
+    age: '',
+    address: '',
+    gender: ''
   });
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    document.title = "Register";
+    document.title = 'Register';
   }, []);
 
   const handleRegister = async (onRegisterSuccess) => {
@@ -27,7 +27,7 @@ export default function RegisterPresenter({ children }) {
       !form.address ||
       !form.gender
     ) {
-      setError("Semua field harus diisi");
+      setError('Semua field harus diisi');
       return;
     }
 
@@ -40,7 +40,7 @@ export default function RegisterPresenter({ children }) {
 
       onRegisterSuccess(user);
     } catch (err) {
-      setError("Register gagal: " + err.message);
+      setError('Register gagal: ' + err.message);
     } finally {
       setLoading(false);
     }

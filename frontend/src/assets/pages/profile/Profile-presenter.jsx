@@ -30,7 +30,11 @@ export default function ProfilePresenter({ children }) {
           });
         }
       } catch (err) {
-        setError(err.message || 'Failed to fetch user data');
+        if (err.message === 'Failed to fetch current user' || err.message === 'Failed to fetch user data' || err.message === 'NetworkError when attempting to fetch resource.') {
+          setError('You appear to be offline. Showing cached data if available.');
+        } else {
+          setError(err.message || 'Failed to fetch user data');
+        }
       } finally {
         setLoading(false);
       }

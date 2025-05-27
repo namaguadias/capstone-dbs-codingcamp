@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 const ContentCardPresenter = ({
   title,
@@ -10,11 +10,11 @@ const ContentCardPresenter = ({
   onMouseLeave,
 }) => {
   const slideInAnimation = {
-    animation: "slideInFromLeft 0.3s ease forwards",
+    animation: 'slideInFromLeft 0.3s ease forwards',
   };
 
   const slideOutAnimation = {
-    animation: "slideOutToLeft 0.3s ease forwards",
+    animation: 'slideOutToLeft 0.3s ease forwards',
   };
 
   return (
@@ -23,9 +23,7 @@ const ContentCardPresenter = ({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <h2 className="text-3xl font-bold mb-6 text-[#0077B6] tracking-wide">
-        {title}
-      </h2>
+      <h2 className="text-3xl font-bold mb-6 text-[#0077B6] tracking-wide">{title}</h2>
       <div className="text-[#004d40] text-lg">{content}</div>
 
       {isVisible && (
@@ -57,7 +55,7 @@ const ContentCardPresenter = ({
           <div
             className="absolute top-0 left-full ml-4 w-72 p-6 bg-white rounded-xl shadow-2xl text-teal-900 z-20"
             style={{
-              boxShadow: "0 12px 36px rgba(0, 0, 0, 0.2)",
+              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.2)',
               ...(isAnimatingOut ? slideOutAnimation : slideInAnimation),
             }}
           >

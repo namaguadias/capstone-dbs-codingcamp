@@ -27,19 +27,21 @@ html, body {
 }
 
 body > div {
-  padding: 2rem;
-  background: linear-gradient(135deg, #2C7A7B, #0077B6);
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  box-sizing: border-box;
-  text-align: center;
-  width: 100vw;
-  height: 100vh;
-  max-width: 100vw;
-  max-height: 100vh;
-  animation: fadeIn 0.5s ease-in;
-  overflow-x: hidden;
+padding: 2rem;
+background: linear-gradient(270deg, #2C7A7B, #0077B6, #00B4D8, #90E0EF, #2C7A7B);
+background-size: 1000% 1000%;
+border-radius: 0;
+box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+box-sizing: border-box;
+text-align: center;
+width: 100vw;
+height: 100vh;
+max-width: 100vw;
+max-height: 100vh;
+animation: gradientShift 30s ease infinite;
+overflow-x: hidden;
 }
+
 
 a {
   font-weight: 500;
@@ -222,6 +224,22 @@ textarea:focus {
   to { opacity: 1; }
 }
 
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in forwards;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -232,5 +250,58 @@ textarea:focus {
   }
   button {
     background-color: #f9f9f9;
+  }
+}
+
+/* Skeleton Loader Styles */
+.loading-profile .skeleton {
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-profile .skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150px;
+  height: 100%;
+  width: 150px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+.loading-profile .avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 1.5rem;
+}
+
+.loading-profile .title {
+  width: 50%;
+  height: 24px;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+}
+
+.loading-profile .text {
+  width: 100%;
+  height: 16px;
+  border-radius: 6px;
+}
+
+.loading-profile .text.short {
+  width: 30%;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-150px);
+  }
+  100% {
+    transform: translateX(100%);
   }
 }

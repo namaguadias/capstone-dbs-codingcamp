@@ -1,5 +1,5 @@
-import React, { useRef } from "react";
-import ScanNowPresenter from "./ScanNow-presenter";
+import React, { useRef } from 'react';
+import ScanNowPresenter from './ScanNow-presenter';
 
 export default function ScanNow() {
   const fileInputRef = useRef(null);
@@ -79,11 +79,9 @@ export default function ScanNow() {
 
             <div
               className="border-2 border-dashed border-blue-400 rounded p-6 mb-4 cursor-pointer hover:bg-blue-50 transition"
-              onClick={() =>
-                fileInputRef.current && fileInputRef.current.click()
-              }
+              onClick={() => fileInputRef.current && fileInputRef.current.click()}
               onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
+                if (e.key === 'Enter' || e.key === ' ') {
                   fileInputRef.current && fileInputRef.current.click();
                 }
               }}
@@ -93,9 +91,7 @@ export default function ScanNow() {
               tabIndex={0}
             >
               <p className="text-blue-600 text-center mb-2">
-                {loading
-                  ? "Processing image..."
-                  : "Click or drag and drop an image to upload"}
+                {loading ? 'Processing image...' : 'Click or drag and drop an image to upload'}
               </p>
               <input
                 type="file"
@@ -114,11 +110,7 @@ export default function ScanNow() {
 
             {image && !loading && (
               <div className="mb-4 transition-opacity duration-500 ease-in-out">
-                <img
-                  src={image}
-                  alt="Uploaded skin"
-                  className="max-w-full rounded shadow"
-                />
+                <img src={image} alt="Uploaded skin" className="max-w-full rounded shadow" />
               </div>
             )}
 

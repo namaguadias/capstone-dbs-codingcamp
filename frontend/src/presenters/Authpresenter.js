@@ -54,18 +54,27 @@ const AuthPresenter = {
   getCurrentUser: async () => {
     const token = localStorage.getItem('token');
     if (!token) return null;
-    const response = await fetch(`${BASE_URL}/auth/me`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-    if (!response.ok) {
-      throw new Error('Failed to fetch current user');
+    try {
+      const response = await fetch(`${BASE_URL}/auth/me`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch current user');
+      }
+      const user = await response.json();
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      return user;
+    } catch (error) {
+      // Return cached user if fetch fails (offline fallback)
+      const cachedUser = localStorage.getItem('currentUser');
+      if (cachedUser) {
+        return JSON.parse(cachedUser);
+      }
+      throw error;
     }
-    const user = await response.json();
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    return user;
   },
 
   updateProfile: async (profileData) => {
