@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 const Navbar = ({ onNavigate }) => {
   return (
@@ -6,12 +6,12 @@ const Navbar = ({ onNavigate }) => {
       <div className="container mx-auto flex justify-between items-center">
         <h1
           className="text-xl font-bold cursor-pointer hover:underline"
-          onClick={() => onNavigate("home")}
+          onClick={() => onNavigate('home')}
           role="button"
           tabIndex={0}
           onKeyPress={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              onNavigate("home");
+            if (e.key === 'Enter' || e.key === ' ') {
+              onNavigate('home');
             }
           }}
         >
@@ -21,7 +21,7 @@ const Navbar = ({ onNavigate }) => {
           <li>
             <button
               className="hover:underline"
-              onClick={() => onNavigate("home")}
+              onClick={() => onNavigate('home')}
             >
               Home
             </button>
@@ -29,7 +29,7 @@ const Navbar = ({ onNavigate }) => {
           <li>
             <button
               className="hover:underline"
-              onClick={() => onNavigate("about")}
+              onClick={() => onNavigate('about')}
             >
               About
             </button>
@@ -37,7 +37,7 @@ const Navbar = ({ onNavigate }) => {
           <li>
             <button
               className="hover:underline"
-              onClick={() => onNavigate("scannow")}
+              onClick={() => onNavigate('scannow')}
             >
               ScanNow
             </button>
@@ -45,7 +45,7 @@ const Navbar = ({ onNavigate }) => {
           <li>
             <button
               className="hover:underline"
-              onClick={() => onNavigate("Profile")}
+              onClick={() => onNavigate('Profile')}
             >
               Profile
             </button>
@@ -53,8 +53,8 @@ const Navbar = ({ onNavigate }) => {
           <li>
             <button
               className="hover:bg-red-700 text-white px-3 py-1 rounded hover:underline"
-              style={{ backgroundColor: "#dc2626" }}
-              onClick={() => onNavigate("logout")}
+              style={{ backgroundColor: '#dc2626' }}
+              onClick={() => onNavigate('logout')}
             >
               Logout
             </button>

@@ -1,17 +1,12 @@
-import { useEffect } from 'react';
-import AuthPresenter from '../../../presenters/Authpresenter.js';
+import React from "react";
+import AuthPresenter from "../../../presenters/Authpresenter.js";
+import LogoutPresenter from "./Logout-presenter";
 
-const Logout = ({ onLogout }) => {
-  useEffect(() => {
+export default function Logout() {
+  const handleLogout = () => {
     AuthPresenter.logout();
-    onLogout();
-  }, [onLogout]);
+    window.location.href = "/login"; // Manual redirect to login page
+  };
 
-  return (
-    <div className="p-6 max-w-md mx-auto text-center">
-      <p>Logout berhasil...</p>
-    </div>
-  );
-};
-
-export default Logout;
+  return <LogoutPresenter onLogout={handleLogout} />;
+}

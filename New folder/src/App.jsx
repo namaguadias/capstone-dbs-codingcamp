@@ -1,0 +1,73 @@
+import React, { useState, useEffect } from 'react';
+import LoadingIndicator from './assets/components/LoadingIndicator';
+import Login from './assets/auth/login/Login';
+import Register from './assets/auth/register/Register';
+import Navbar from './assets/components/Navbar';
+import Home from './assets/pages/home/Home';
+import AboutUs from './assets/pages/AboutUs';
+import ScanNow from './assets/pages/diagnose/ScanNow';
+import Profile from './assets/pages/profile/Profile';
+import Footer from './assets/components/Footer';
+import Logout from './assets/auth/logout/Logout';
+
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [page, setPage] = useState('login');
+  const [loading, setLoading] = useState(false);
+
+  const handleLoginSuccess = (user) => {
+    setUser(user);
+    setPage('home');
+  };
+
+  const handleRegisterSuccess = (user) => {
+    setUser(user);
+    setPage('home');
+  };
+
+  const handleNavigate = (page) => {
+    setLoading(true);
+    setPage(page);
+    setTimeout(() => {
+      setLoading(false);
+    }, 300);
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    // Simulate async user session check
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+  }, []);
+
+  if (loading) {
+    return <LoadingIndicator />;
+  }
+
+  if (user) {
+    return (
+      <>
+        <Navbar onNavigate={handleNavigate} />
+        <div className="w-full min-h-screen p-6 mt-6 bg-white rounded shadow-md">
+          {page === 'home' && <Home />}
+          {page === 'about' && <AboutUs />}
+          {page === 'scannow' && <ScanNow />}
+          {page === 'Profile' && <Profile />}
+          {page === 'logout' && <Logout />}
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  return (
+    <div>
+      {page === 'login' ? (
+        <Login onLoginSuccess={handleLoginSuccess} onSwitchToRegister={() => handleNavigate('register')} />
+      ) : (
+        <Register onRegisterSuccess={handleRegisterSuccess} onSwitchToLogin={() => handleNavigate('login')} />
+      )}
+    </div>
+  );
+}
