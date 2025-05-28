@@ -14,6 +14,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('login');
   const [loading, setLoading] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   const handleLoginSuccess = (user) => {
     setUser(user);
@@ -59,6 +60,20 @@ export default function App() {
     document.title = pageTitleMap[page] || 'SkinSights';
   }, [page]);
 
+  // Listen for online/offline events to update isOnline state
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   if (loading) {
     return <LoadingIndicator />;
   }
@@ -67,6 +82,11 @@ export default function App() {
     return (
       <>
         <Navbar onNavigate={handleNavigate} />
+        {!isOnline && (
+          <div className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center py-2 z-50">
+            You are currently offline.
+          </div>
+        )}
         <div className="w-full min-h-screen p-6 mt-6 bg-white rounded shadow-md">
           {page === 'home' && <Home />}
           {page === 'about' && <AboutUs />}
@@ -82,9 +102,23 @@ export default function App() {
   return (
     <div>
       {page === 'login' ? (
-        <Login onLoginSuccess={handleLoginSuccess} onSwitchToRegister={() => handleNavigate('register')} />
+        <>
+          {!isOnline && (
+            <div className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center py-2 z-50">
+              You are currently offline.
+            </div>
+          )}
+          <Login onLoginSuccess={handleLoginSuccess} onSwitchToRegister={() => handleNavigate('register')} />
+        </>
       ) : (
-        <Register onRegisterSuccess={handleRegisterSuccess} onSwitchToLogin={() => handleNavigate('login')} />
+        <>
+          {!isOnline && (
+            <div className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center py-2 z-50">
+              You are currently offline.
+            </div>
+          )}
+          <Register onRegisterSuccess={handleRegisterSuccess} onSwitchToLogin={() => handleNavigate('login')} />
+        </>
       )}
     </div>
   );

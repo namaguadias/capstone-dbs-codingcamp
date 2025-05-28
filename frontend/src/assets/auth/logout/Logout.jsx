@@ -1,5 +1,5 @@
 import React from 'react';
-import AuthPresenter from '../../../presenters/Authpresenter.js';
+import AuthPresenter from '../../../data/api.js';
 import LogoutPresenter from './Logout-presenter';
 
 export default function Logout() {

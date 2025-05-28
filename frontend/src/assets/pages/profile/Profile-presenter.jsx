@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import AuthPresenter from '../../../presenters/Authpresenter';
+import AuthPresenter from '../../../data/api';
 
 export default function ProfilePresenter({ children }) {
   const [formData, setFormData] = useState({

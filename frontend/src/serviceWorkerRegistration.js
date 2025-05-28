@@ -2,11 +2,11 @@
 
 export function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    // Disable service worker registration in development mode
-    if (import.meta.env.MODE === 'development') {
-      console.log('Service worker registration skipped in development mode');
-      return;
-    }
+    // Removed skipping service worker registration in development mode to enable registration for testing
+    // if (import.meta.env.MODE === 'development') {
+    //   console.log('Service worker registration skipped in development mode');
+    //   return;
+    // }
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js')
         .then(registration => {
