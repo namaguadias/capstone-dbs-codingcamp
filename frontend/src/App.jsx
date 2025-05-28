@@ -13,16 +13,39 @@ import Logout from './assets/auth/logout/Logout';
 export default function App() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('login');
+
+  // Save page to localStorage whenever it changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('currentPage', page);
+    }
+  }, [page, user]);
+  
+  // On mount, restore user and page from localStorage
+  useEffect(() => {
+    setLoading(true);
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      const storedPage = localStorage.getItem('currentPage');
+      setPage(storedPage || 'home');
+    }
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+  }, []);
   const [loading, setLoading] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   const handleLoginSuccess = (user) => {
     setUser(user);
+    localStorage.setItem('currentUser', JSON.stringify(user));
     setPage('home');
   };
 
   const handleRegisterSuccess = (user) => {
     setUser(user);
+    localStorage.setItem('currentUser', JSON.stringify(user));
     setPage('home');
   };
 
@@ -33,19 +56,6 @@ export default function App() {
       setLoading(false);
     }, 300);
   };
-
-  useEffect(() => {
-    setLoading(true);
-    // Check for existing user session in localStorage
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      setPage('home');
-    }
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
-  }, []);
 
   // Update document title based on current page
   useEffect(() => {
