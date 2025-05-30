@@ -305,3 +305,135 @@ textarea:focus {
     transform: translateX(100%);
   }
 }
+
+/* ================================================================== */
+/* == TAMBAHAN CSS UNTUK TAMPILAN RESOLUSI ANDROID & iOS (MOBILE) == */
+/* ==       (Struktur Asli Dipertahankan, Hanya Menimpa)          == */
+/* ================================================================== */
+
+@media screen and (max-width: 768px) {
+
+  /* --- Pengaturan Dasar untuk Body & Layout Mobile --- */
+
+  html, body {
+    display: block; /* Hapus display flex */
+    height: auto;   /* Izinkan tinggi sesuai konten */
+    align-items: initial;
+    justify-content: initial;
+    -webkit-overflow-scrolling: touch; /* Scroll halus di iOS */
+  }
+
+  body > div {
+    height: auto;       /* Izinkan tinggi sesuai konten */
+    min-height: 100vh;  /* Minimal setinggi layar */
+    display: block;     /* Hapus flexbox centering */
+    text-align: left;   /* Kembalikan teks ke kiri */
+    padding: 0;         /* Hapus padding desktop */
+    overflow-y: auto;   /* Buat container utama bisa discroll */
+    animation: none;    /* Opsional: Matikan animasi gradient di mobile */
+    background: #CAF0F8; /* Gunakan warna solid di mobile (opsional) */
+
+    /* Menambahkan padding untuk Safe Area (iOS) & Navbar Sticky */
+    /* Asumsi tinggi Navbar 64px */
+    padding-top: calc(64px + env(safe-area-inset-top));
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* --- Penyesuaian Ukuran Font Mobile --- */
+
+  h1, .text-4xl { font-size: 1.8rem !important; margin-bottom: 1.25rem !important; }
+  h2, .text-3xl { font-size: 1.5rem !important; margin-bottom: 1rem !important; }
+  h3, .text-2xl { font-size: 1.25rem !important; margin-bottom: 0.75rem !important; }
+  .login-title { font-size: 1.8rem !important; }
+
+  /* --- Penyesuaian Kontainer & Kartu Mobile --- */
+
+  /* Ini akan menargetkan semua kontainer utama halaman Anda */
+  .page-container,
+  div[class*="max-w-"] {
+    width: auto !important; /* Biarkan lebar mengikuti parent */
+    max-width: none !important; /* Hapus batasan lebar maks */
+    margin: 1rem !important; /* Beri sedikit margin keliling */
+    padding: 1rem !important; /* Kurangi padding internal */
+    box-sizing: border-box;
+    /* Jaga agar tetap putih atau sesuai kebutuhan */
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Khusus untuk form background jika ingin gaya berbeda */
+  .form-background {
+      margin: 1rem !important;
+      padding: 1.5rem 1rem !important;
+      background-color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* --- Penyesuaian Input & Tombol Mobile --- */
+
+  input[type="text"], input[type="email"], input[type="password"],
+  input[type="number"], select, textarea {
+    padding: 0.9rem 1rem; /* Padding lebih nyaman */
+    font-size: 1rem;
+    -webkit-appearance: none; /* Hapus gaya default iOS/lainnya jika perlu */
+  }
+
+  button, .page-button {
+    width: 100% !important; /* Pastikan tombol 100% */
+    max-width: none !important;
+    padding: 0.8em 1.2em !important; /* Padding lebih nyaman */
+    box-sizing: border-box;
+    font-weight: 600;
+  }
+
+  /* Khusus untuk tombol di grup yang butuh stack */
+  .button-group-stack-mobile {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem; /* Jarak antar tombol */
+      width: 100%;
+  }
+  .button-group-stack-mobile button {
+      margin-top: 0; /* Hapus margin atas default */
+  }
+
+
+  /* --- Penyesuaian Komponen Spesifik --- */
+
+  /* ContentCardPresenter - Sembunyikan popup samping */
+  .content-card-popup { /* Anda perlu menambahkan kelas ini ke div popup */
+      display: none !important;
+  }
+  /* Dan buat kartu utama full-width (sudah tercakup oleh aturan div[class*="max-w-"]) */
+  /* Hapus hover effect di mobile (opsional, karena tidak berfungsi) */
+  section[class*="hover:scale-105"], div[class*="hover:scale-105"] {
+      transform: none !important;
+      transition: none !important;
+  }
+
+  /* ScanNow & Profile - Tombol Grup */
+  /* Di JSX, bungkus tombol horizontal Anda dgn <div className="button-group-stack-mobile md:flex md:flex-row md:space-x-4"> */
+  /* Aturan .button-group-stack-mobile di atas akan menanganinya */
+
+  /* Footer - Buat kolom jadi vertikal */
+  footer {
+      padding: 2rem 1rem !important;
+      text-align: center !important;
+  }
+  footer .max-w-7xl {
+      flex-direction: column !important;
+      align-items: center !important;
+      gap: 2rem; /* Jarak antar kolom */
+  }
+  footer .flex.space-x-4 {
+      justify-content: center !important; /* Pusatkan ikon medsos */
+  }
+
+  /* --- Tambahan iOS --- */
+  /* Input di iOS terkadang butuh ini agar font-size tidak zoom */
+  input, textarea, select {
+      font-size: 16px; /* Atau minimal 16px */
+  }
+}

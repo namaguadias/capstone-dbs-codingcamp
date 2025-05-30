@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 
 export default function ScanNowPresenter({ children }) {
   const [image, setImage] = useState(null);
-  const [diagnosis, setDiagnosis] = useState("");
+  const [diagnosis, setDiagnosis] = useState('');
   const [loading, setLoading] = useState(false);
 
   // Camera related states
   const [cameraOn, setCameraOn] = useState(false);
   const [stream, setStream] = useState(null);
+  const streamRef = useRef(null);
   const videoRef = useRef(null);
 
   const handleImageChange = (e) => {
@@ -17,7 +18,7 @@ export default function ScanNowPresenter({ children }) {
       setImage(URL.createObjectURL(file));
       // Simulate diagnosis result for demonstration with delay
       setTimeout(() => {
-        setDiagnosis("Hasil diagnosa awal: Kemungkinan dermatitis atau eksim.");
+        setDiagnosis('Hasil diagnosa awal: Kemungkinan dermatitis atau eksim.');
         setLoading(false);
       }, 1500);
     }
@@ -26,21 +27,21 @@ export default function ScanNowPresenter({ children }) {
   // Start camera
   const startCamera = async () => {
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-      });
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
       setStream(mediaStream);
+      streamRef.current = mediaStream;
       setCameraOn(true);
     } catch (err) {
-      console.error("Error accessing camera:", err);
+      console.error('Error accessing camera:', err);
       setCameraOn(false);
     }
   };
 
   // Stop camera
   const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
       setStream(null);
     }
     setCameraOn(false);
@@ -50,18 +51,18 @@ export default function ScanNowPresenter({ children }) {
   const takePhoto = () => {
     if (!videoRef.current) return;
     const video = videoRef.current;
-    const canvas = document.createElement("canvas");
+    const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const photoDataUrl = canvas.toDataURL("image/png");
+    const photoDataUrl = canvas.toDataURL('image/png');
 
     setLoading(true);
     setImage(photoDataUrl);
-    setDiagnosis("");
+    setDiagnosis('');
     setTimeout(() => {
-      setDiagnosis("Hasil diagnosa awal: Kemungkinan dermatitis atau eksim.");
+      setDiagnosis('Hasil diagnosa awal: Kemungkinan dermatitis atau eksim.');
       setLoading(false);
     }, 1500);
   };
@@ -69,10 +70,11 @@ export default function ScanNowPresenter({ children }) {
   // Reset scan to allow new upload or photo
   const resetScan = () => {
     setImage(null);
-    setDiagnosis("");
+    setDiagnosis('');
     setLoading(false);
   };
 
+  // Update video element srcObject when stream changes
   useEffect(() => {
     if (videoRef.current && stream) {
       videoRef.current.srcObject = stream;
@@ -81,8 +83,40 @@ export default function ScanNowPresenter({ children }) {
 
   // Cleanup on unmount
   useEffect(() => {
+    // Stop camera on page unload or refresh
+    const handleBeforeUnload = () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+        setStream(null);
+        setCameraOn(false);
+      }
+    };
+
+    // Stop camera when page is hidden (e.g., tab switch)
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach((track) => track.stop());
+          streamRef.current = null;
+          setStream(null);
+          setCameraOn(false);
+        }
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
-      stopCamera();
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+        setStream(null);
+        setCameraOn(false);
+      }
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
