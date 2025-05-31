@@ -91,7 +91,7 @@ export default function App() {
   if (user) {
     return (
       <>
-        <Navbar onNavigate={handleNavigate} />
+        <Navbar onNavigate={handleNavigate} isOffline={!isOnline} />
         {!isOnline && (
           <div className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center py-2 z-50">
             You are currently offline.

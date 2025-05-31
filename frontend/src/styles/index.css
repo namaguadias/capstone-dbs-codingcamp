@@ -4,10 +4,35 @@
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
   color-scheme: light dark;
-  color: #2C7A7B; /* dark greenish */
-  background-color: #CAF0F8; /* very light blue */
+
+  /* Definisi Warna Tema Kesehatan BARU */
+  --color-theme-primary: #2C7A7B;      /* Teal tua sebagai warna utama (Misal: Tailwind teal-700) */
+  --color-theme-primary-hover: #205E5B;/* Lebih gelap untuk hover (Misal: Tailwind teal-800) */
+  --color-theme-primary-light: #68A7A3;/* Lebih terang untuk aksen (Misal: Tailwind teal-400) */
+  
+  --color-theme-secondary: #0077B6;    /* Biru yang sudah ada, sebagai aksen sekunder (Misal: Tailwind blue-600) */
+  --color-theme-secondary-hover: #005A8C;/* Misal: Tailwind blue-700 */
+
+  --color-text-headings: var(--color-theme-primary);
+  --color-text-body: #374151;        /* Abu-abu gelap untuk teks isi (Tailwind gray-700) */
+  --color-text-muted: #6B7280;       /* Abu-abu lebih terang (Tailwind gray-500) */
+  --color-text-on-primary: #FFFFFF;   /* Teks putih di atas background warna primer */
+  --color-text-on-secondary: #FFFFFF;  /* Teks putih di atas background warna sekunder */
+
+  --color-page-background: #F0F9F8;  /* Putih dengan sedikit nuansa teal/cyan (sangat terang) */
+  --color-card-background: #FFFFFF;   /* Latar belakang kartu */
+  --color-border-subtle: #D1D5DB;    /* Abu-abu muda untuk border (Tailwind gray-300) */
+  --color-input-background: #FFFFFF;
+  
+  --color-footer-background: #1F2937; /* Abu-abu sangat gelap untuk footer (Tailwind gray-800) */
+  --color-footer-text: #9CA3AF;      /* Teks abu-abu terang di footer (Tailwind gray-400) */
+  --color-footer-heading: #E5E7EB;   /* Teks judul di footer (Tailwind gray-200) */
+  --color-footer-link-hover: #FFFFFF;
+
+
+  color: var(--color-text-body);
+  background-color: var(--color-page-background);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -18,63 +43,89 @@
 html, body {
   height: 100%;
   margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #CAF0F8;
-  color: #2C7A7B;
+  padding: 0;
+  background-color: var(--color-page-background);
+  color: var(--color-text-body);
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
-body > div {
-padding: 2rem;
-background: linear-gradient(270deg, #2C7A7B, #0077B6, #00B4D8, #90E0EF, #2C7A7B);
-background-size: 1000% 1000%;
-border-radius: 0;
-box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-box-sizing: border-box;
-text-align: center;
-width: 100vw;
-height: 100vh;
-max-width: 100vw;
-max-height: 100vh;
-animation: gradientShift 30s ease infinite;
-overflow-x: hidden;
+body > div { /* Ini adalah #root atau container utama aplikasi Anda */
+  width: 100%;
+  min-height: 100vh; 
+  height: auto;      
+  box-sizing: border-box;
+  
+  /* Anda bisa memilih antara gradient atau warna solid untuk desktop */
+  /* background: var(--color-page-background); /* Jika ingin solid */
+  background: linear-gradient(270deg, var(--color-theme-primary), var(--color-theme-secondary), #00B4D8, #90E0EF, var(--color-theme-primary));
+  background-size: 1000% 1000%;
+  animation: gradientShift 30s ease infinite;
+  
+  overflow-x: hidden; 
+  overflow-y: auto;   
+  padding: 0; 
+  padding-top: 64px; /* Untuk navbar fixed setinggi h-16 (64px) */
 }
 
+/* Styling elemen dasar dengan warna tema */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-text-headings);
+  /* margin-bottom: 0.75em; (opsional: default margin bawah untuk heading) */
+}
 
 a {
   font-weight: 500;
-  color: #0077B6;
-  text-decoration: inherit;
-  transition: color 0.3s ease;
+  color: var(--color-theme-secondary); 
+  text-decoration: none; /* Hapus underline default, muncul saat hover */
+  transition: color 0.2s ease;
 }
 a:hover {
-  color: #00B4D8;
+  color: var(--color-theme-primary); 
   text-decoration: underline;
 }
 
-button {
+/* Tombol Global - Menggunakan Warna Sekunder Secara Default */
+button, .btn { /* Tambahkan .btn agar bisa diterapkan pada <a> atau elemen lain */
+  display: inline-flex; /* Untuk alignment ikon dll */
+  align-items: center;
+  justify-content: center;
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #0077B6;
-  color: white;
+  background-color: var(--color-theme-secondary);
+  color: var(--color-text-on-secondary);
   cursor: pointer;
-  transition: border-color 0.25s, background-color 0.25s, transform 0.2s ease;
-  width: 100%;
+  transition: all 0.25s ease; /* Transisi lebih smooth */
+  width: 100%; /* Default untuk mobile, bisa dioverride dengan w-auto di desktop */
   margin-top: 0.5rem;
+  text-decoration: none !important; /* Jika diterapkan pada <a> */
 }
-button:hover {
-  border-color: #00B4D8;
-  background-color: #00B4D8;
-  color: #2C7A7B;
-  transform: scale(1.05);
+button:hover, .btn:hover {
+  background-color: var(--color-theme-secondary-hover);
+  /* border-color: var(--color-theme-secondary-hover); (jika ada border) */
+  transform: scale(1.03); /* Sedikit lebih halus dari 1.05 */
+}
+button:focus-visible, .btn:focus-visible { /* Styling fokus yang lebih baik */
+  outline: 2px solid var(--color-theme-secondary);
+  outline-offset: 2px;
 }
 
+/* Tombol Primer dengan Warna Tema Utama */
+.btn-primary {
+  background-color: var(--color-theme-primary) !important;
+  color: var(--color-text-on-primary) !important;
+}
+.btn-primary:hover {
+  background-color: var(--color-theme-primary-hover) !important;
+}
+.btn-primary:focus-visible {
+  outline-color: var(--color-theme-primary) !important;
+}
+
+/* Input fields */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -84,19 +135,19 @@ textarea {
   width: 100%;
   padding: 0.75rem 1rem;
   margin: 0.5rem 0 1rem 0;
-  border: none;
+  border: 1px solid var(--color-border-subtle); /* Tambah border halus */
   border-radius: 8px;
-  background-color: #ffffff !important;
-  color: #2C7A7B;
+  background-color: var(--color-input-background) !important;
+  color: var(--color-text-body);
   font-size: 1rem;
   box-sizing: border-box;
-  transition: box-shadow 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #2C7A7B;
-  opacity: 0.7;
+  color: var(--color-text-muted);
+  opacity: 1; /* Biarkan warna muted yang mengatur opasitas */
 }
 
 input[type="text"]:focus,
@@ -106,44 +157,43 @@ input[type="number"]:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  box-shadow: 0 0 5px 2px #00b4d8;
+  border-color: var(--color-theme-primary);
+  box-shadow: 0 0 0 3px rgba(44, 122, 123, 0.25); /* Warna shadow primer tema dengan transparansi */
 }
 
 .login-title {
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  color: #2C7A7B;
+  color: var(--color-text-headings); /* Menggunakan warna heading tema */
 }
 
 .form-background {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.9); /* Transparansi sedikit bisa dipertahankan */
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  text-align: left;
-  color: #213547;
+  text-align: left; 
+  color: var(--color-text-body);
 }
 
-/* Additional styles for new pages */
 .page-container {
   width: 90%;
   max-width: 900px;
-  margin: 2rem auto;
+  margin: 2rem auto; 
   padding: 2rem;
-  background: #ffffffcc;
+  background: var(--color-card-background); /* Latar kartu */
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 119, 182, 0.2);
-  color: #213547;
+  box-shadow: 0 10px 30px rgba(0, 119, 182, 0.1); /* Bayangan bisa disesuaikan dengan warna tema */
+  color: var(--color-text-body);
   text-align: left;
   animation: fadeIn 0.5s ease-in;
-  overflow-x: hidden;
 }
 
-.page-title {
+.page-title { /* Untuk judul di page-container */
   font-size: 2.5rem;
   font-weight: 700;
-  color: #0077B6;
+  color: var(--color-text-headings); 
   margin-bottom: 1.5rem;
 }
 
@@ -151,26 +201,27 @@ textarea:focus {
   margin-bottom: 1.5rem;
 }
 
-.page-section h2 {
+.page-section h2 { /* Judul section di page-container */
   font-size: 1.75rem;
   font-weight: 600;
-  color: #2C7A7B;
+  color: var(--color-text-headings); 
   margin-bottom: 0.75rem;
 }
 
 .page-section ul {
   list-style-type: disc;
   padding-left: 1.5rem;
-  color: #2C7A7B;
+  color: var(--color-text-body);
 }
 
 .page-section ul li {
   margin-bottom: 0.5rem;
 }
 
-.page-button {
-  background-color: #0077B6;
-  color: white;
+.page-button { /* Jika masih digunakan, ini akan jadi seperti .btn-primary atau .btn-secondary */
+  background-color: var(--color-theme-primary);
+  color: var(--color-text-on-primary);
+  /* ... sisa properti dari .btn ... */
   padding: 0.75rem 1.5rem;
   border-radius: 12px;
   border: none;
@@ -182,159 +233,52 @@ textarea:focus {
   margin-top: 1rem;
 }
 .page-button:hover {
-  background-color: #00B4D8;
-  color: #2C7A7B;
+  background-color: var(--color-theme-primary-hover);
   transform: scale(1.05);
 }
 
-/* Loading Indicator Styles */
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  animation: fadeIn 0.5s ease-in forwards;
-  z-index: 9999;
-}
-
-.loader {
-  border-radius: 50%;
-  border: 8px solid #e2e8f0; /* gray-200 */
-  border-top: 8px solid #3498db;
-  width: 64px;
-  height: 64px;
-  animation: spin 1s linear infinite, pulse 2s ease-in-out infinite;
-  box-shadow: 0 0 10px #3498db;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 10px #3498db; }
-  50% { box-shadow: 0 0 20px #00b4d8; }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.5s ease-in forwards;
-}
-
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
-
-/* Skeleton Loader Styles */
-.loading-profile .skeleton {
-  background-color: #e2e8f0;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.loading-profile .skeleton::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -150px;
-  height: 100%;
-  width: 150px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-  animation: shimmer 1.5s infinite;
-}
-
-.loading-profile .avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  margin-bottom: 1.5rem;
-}
-
-.loading-profile .title {
-  width: 50%;
-  height: 24px;
-  margin-bottom: 1rem;
-  border-radius: 8px;
-}
-
-.loading-profile .text {
-  width: 100%;
-  height: 16px;
-  border-radius: 6px;
-}
-
-.loading-profile .text.short {
-  width: 30%;
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-150px);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
+/* ... (CSS untuk LoadingOverlay, Loader, Keyframes tetap sama) ... */
+.loading-overlay { position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.3); display: flex; justify-content: center; align-items: center; animation: fadeIn 0.5s ease-in forwards; z-index: 9999;}
+.loader { border-radius: 50%; border: 8px solid #e2e8f0;  border-top: 8px solid #3498db; width: 64px; height: 64px; animation: spin 1s linear infinite, pulse 2s ease-in-out infinite; box-shadow: 0 0 10px #3498db;}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); }}
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 10px #3498db; } 50% { box-shadow: 0 0 20px #00b4d8; }}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; }}
+.animate-fadeIn { animation: fadeIn 0.5s ease-in forwards;}
+@keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; }}
+@media (prefers-color-scheme: light) { :root {} a:hover { color: var(--color-theme-primary-light); } button {}}
+.loading-profile .skeleton { background-color: #e2e8f0; border-radius: 4px; margin-bottom: 1rem; position: relative; overflow: hidden;}
+.loading-profile .skeleton::after { content: ""; position: absolute; top: 0; left: -150px;  height: 100%; width: 150px;  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shimmer 1.5s infinite;}
+.loading-profile .avatar { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 1.5rem;}
+.loading-profile .title { width: 50%; height: 24px; margin-bottom: 1rem; border-radius: 8px;}
+.loading-profile .text { width: 100%; height: 16px; border-radius: 6px;}
+.loading-profile .text.short { width: 30%;}
+@keyframes shimmer { 0% { transform: translateX(0); } 100% { transform: translateX(calc(100% + 150px));  }}
 
 /* ================================================================== */
 /* == TAMBAHAN CSS UNTUK TAMPILAN RESOLUSI ANDROID & iOS (MOBILE) == */
-/* ==       (Struktur Asli Dipertahankan, Hanya Menimpa)          == */
 /* ================================================================== */
 
 @media screen and (max-width: 768px) {
 
   /* --- Pengaturan Dasar untuk Body & Layout Mobile --- */
-
-  html, body {
-    display: block; /* Hapus display flex */
-    height: auto;   /* Izinkan tinggi sesuai konten */
+  html, body { 
+    display: block; 
+    height: auto;   
     align-items: initial;
     justify-content: initial;
-    -webkit-overflow-scrolling: touch; /* Scroll halus di iOS */
+    -webkit-overflow-scrolling: touch; 
   }
 
-  body > div {
-    height: auto;       /* Izinkan tinggi sesuai konten */
-    min-height: 100vh;  /* Minimal setinggi layar */
-    display: block;     /* Hapus flexbox centering */
-    text-align: left;   /* Kembalikan teks ke kiri */
-    padding: 0;         /* Hapus padding desktop */
-    overflow-y: auto;   /* Buat container utama bisa discroll */
-    animation: none;    /* Opsional: Matikan animasi gradient di mobile */
-    background: #CAF0F8; /* Gunakan warna solid di mobile (opsional) */
+  body > div { 
+    height: auto;    
+    min-height: 100vh; 
+    display: block;    
+    text-align: left;   
+    padding: 0;        
+    overflow-y: auto;   
+    animation: none;    
+    background: var(--color-page-background) !important; /* Latar solid di mobile */
 
-    /* Menambahkan padding untuk Safe Area (iOS) & Navbar Sticky */
-    /* Asumsi tinggi Navbar 64px */
     padding-top: calc(64px + env(safe-area-inset-top));
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
@@ -342,98 +286,161 @@ textarea:focus {
   }
 
   /* --- Penyesuaian Ukuran Font Mobile --- */
-
   h1, .text-4xl { font-size: 1.8rem !important; margin-bottom: 1.25rem !important; }
   h2, .text-3xl { font-size: 1.5rem !important; margin-bottom: 1rem !important; }
   h3, .text-2xl { font-size: 1.25rem !important; margin-bottom: 0.75rem !important; }
   .login-title { font-size: 1.8rem !important; }
 
   /* --- Penyesuaian Kontainer & Kartu Mobile --- */
-
-  /* Ini akan menargetkan semua kontainer utama halaman Anda */
   .page-container,
-  div[class*="max-w-"] {
-    width: auto !important; /* Biarkan lebar mengikuti parent */
-    max-width: none !important; /* Hapus batasan lebar maks */
-    margin: 1rem !important; /* Beri sedikit margin keliling */
-    padding: 1rem !important; /* Kurangi padding internal */
+  div[class*="max-w-"] { 
+    width: auto !important; 
+    max-width: none !important; 
+    margin: 1rem !important; 
+    padding: 1rem !important; 
     box-sizing: border-box;
-    /* Jaga agar tetap putih atau sesuai kebutuhan */
-    background-color: white;
+    background-color: var(--color-card-background) !important;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
-  /* Khusus untuk form background jika ingin gaya berbeda */
-  .form-background {
+  /* --- Override KHUSUS untuk kontainer dalam Navbar --- */
+  /* Targetkan div di dalam nav yang memiliki kelas max-w-7xl (atau kelas serupa yang Anda gunakan di Navbar) */
+  nav > div.max-w-7xl { /* Sesuaikan .max-w-7xl jika kelas di Navbar Anda berbeda */
+    width: 100% !important;       /* Kembalikan ke lebar penuh relatif terhadap <nav> */
+    max-width: none !important;   /* Di mobile, max-width bisa jadi tidak relevan atau 100% */
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    margin-left: auto !important;  /* Kembalikan perilaku mx-auto */
+    margin-right: auto !important; /* Kembalikan perilaku mx-auto */
+    padding: 0 !important;        /* Hapus padding tambahan, biarkan <nav> yang mengatur padding luar */
+    background-color: transparent !important; /* Pastikan tidak ada background dari aturan global */
+    box-shadow: none !important; /* Pastikan tidak ada shadow dari aturan global */
+    border-radius: 0 !important; /* Pastikan tidak ada radius dari aturan global */
+  }
+  /* --- Akhir Override Navbar --- */
+
+
+  .form-background { 
       margin: 1rem !important;
       padding: 1.5rem 1rem !important;
-      background-color: rgba(255, 255, 255, 0.9);
+      background-color: rgba(255, 255, 255, 0.95); 
   }
 
   /* --- Penyesuaian Input & Tombol Mobile --- */
-
   input[type="text"], input[type="email"], input[type="password"],
   input[type="number"], select, textarea {
-    padding: 0.9rem 1rem; /* Padding lebih nyaman */
-    font-size: 1rem;
-    -webkit-appearance: none; /* Hapus gaya default iOS/lainnya jika perlu */
+    padding: 0.9rem 1rem; 
+    font-size: 1rem; 
+    -webkit-appearance: none; 
   }
 
-  button, .page-button {
-    width: 100% !important; /* Pastikan tombol 100% */
+  button, .page-button, .btn, .btn-primary, .btn-secondary { 
+    width: 100% !important; 
     max-width: none !important;
-    padding: 0.8em 1.2em !important; /* Padding lebih nyaman */
-    box-sizing: border-box;
-    font-weight: 600;
+    padding: 0.9em 1.2em !important; 
+    font-weight: 500; 
   }
 
-  /* Khusus untuk tombol di grup yang butuh stack */
-  .button-group-stack-mobile {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem; /* Jarak antar tombol */
-      width: 100%;
-  }
-  .button-group-stack-mobile button {
-      margin-top: 0; /* Hapus margin atas default */
-  }
+  .button-group-stack-mobile { display: flex; flex-direction: column; gap: 0.75rem;  width: 100%;}
+  .button-group-stack-mobile button { margin-top: 0; }
+  .content-card-popup {  display: none !important; }
+  section[class*="hover:scale-105"], div[class*="hover:scale-105"] { transform: none !important; transition: none !important; }
+  input, textarea, select { font-size: 16px;  }
 
 
-  /* --- Penyesuaian Komponen Spesifik --- */
-
-  /* ContentCardPresenter - Sembunyikan popup samping */
-  .content-card-popup { /* Anda perlu menambahkan kelas ini ke div popup */
-      display: none !important;
+  /* --- Penyesuaian Spesifik untuk Komponen di Mobile --- */
+  .feature-card-arrow-button { /* Untuk Home.jsx */
+    width: auto !important; 
+    padding: 0.5rem !important; 
+    background-color: rgba(0,0,0,0.1) !important; 
   }
-  /* Dan buat kartu utama full-width (sudah tercakup oleh aturan div[class*="max-w-"]) */
-  /* Hapus hover effect di mobile (opsional, karena tidak berfungsi) */
-  section[class*="hover:scale-105"], div[class*="hover:scale-105"] {
-      transform: none !important;
-      transition: none !important;
+  .feature-card-arrow-button:hover {
+    background-color: rgba(0,0,0,0.2) !important;
   }
 
-  /* ScanNow & Profile - Tombol Grup */
-  /* Di JSX, bungkus tombol horizontal Anda dgn <div className="button-group-stack-mobile md:flex md:flex-row md:space-x-4"> */
-  /* Aturan .button-group-stack-mobile di atas akan menanganinya */
-
-  /* Footer - Buat kolom jadi vertikal */
-  footer {
-      padding: 2rem 1rem !important;
-      text-align: center !important;
+  .navbar-hamburger-button { /* Untuk Navbar.jsx */
+    width: auto !important;        
+    padding: 0.375rem !important; /* p-1.5 Tailwind */
+    margin-top: 0 !important;     
   }
-  footer .max-w-7xl {
-      flex-direction: column !important;
-      align-items: center !important;
-      gap: 2rem; /* Jarak antar kolom */
-  }
-  footer .flex.space-x-4 {
-      justify-content: center !important; /* Pusatkan ikon medsos */
+  
+  /* --- PENYESUAIAN FOOTER BARU UNTUK MOBILE (SESUAI DESAIN JSX BARU) --- */
+  footer.bg-slate-800 { 
+    background-color: var(--color-footer-background) !important;
+    color: var(--color-footer-text) !important;
+    padding-top: 2.5rem !important;
+    padding-bottom: 1.5rem !important;
+    margin-top: 2rem !important; 
+    text-align: left !important; 
   }
 
-  /* --- Tambahan iOS --- */
-  /* Input di iOS terkadang butuh ini agar font-size tidak zoom */
-  input, textarea, select {
-      font-size: 16px; /* Atau minimal 16px */
+  footer.bg-slate-800 .max-w-7xl .grid {
+    gap: 2rem !important; 
   }
-}
+
+  footer.bg-slate-800 h3 {
+    font-size: 1rem !important; 
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    color: var(--color-footer-heading) !important;
+    margin-bottom: 1rem !important; 
+  }
+
+  footer.bg-slate-800 ul a {
+    font-size: 0.875rem !important; 
+    padding: 0.2rem 0 !important; 
+    display: inline-block !important; 
+    color: var(--color-footer-text) !important;
+  }
+  footer.bg-slate-800 ul a:hover {
+    color: var(--color-footer-link-hover) !important;
+  }
+  
+  footer.bg-slate-800 div > .flex.space-x-3 { 
+    justify-content: flex-start !important; 
+    /* justify-content: center !important; (Jika ingin ikon sosial terpusat di kolomnya) */
+    margin-bottom: 0.75rem !important;
+  }
+  
+  footer.bg-slate-800 .flex.space-x-3 a {
+    padding: 0.5rem !important; 
+    background-color: #374151 !important; /* Tailwind gray-700 */
+    color: var(--color-footer-text) !important;
+  }
+   footer.bg-slate-800 .flex.space-x-3 a:hover {
+    background-color: var(--color-theme-primary) !important; 
+    color: white !important;
+  }
+
+  footer.bg-slate-800 .flex.space-x-3 svg {
+    width: 1.25rem !important; 
+    height: 1.25rem !important; 
+  }
+  
+  footer.bg-slate-800 div > p { 
+    font-size: 0.875rem !important;
+    color: var(--color-footer-text) !important;
+  }
+
+  footer.bg-slate-800 hr {
+    margin-top: 2rem !important;
+    margin-bottom: 1.5rem !important;
+    border-color: #374151 !important; /* Tailwind gray-700 */
+  }
+
+  footer.bg-slate-800 > .max-w-7xl > p:last-of-type { /* Copyright */
+    font-size: 0.875rem !important; 
+    text-align: center !important; 
+    color: var(--color-footer-text) !important;
+  }
+  /* --- AKHIR PENYESUAIAN FOOTER BARU --- */
+
+  /* Opsi: Penyesuaian tambahan untuk elemen lain jika diperlukan */
+  
+  .home-banner-title { 
+    font-size: 1.8rem !important; 
+  }
+  
+
+} /* Penutup untuk @media screen and (max-width: 768px) */
