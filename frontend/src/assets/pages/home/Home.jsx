@@ -23,6 +23,9 @@ const DiseaseInfoCard = ({ diseaseName, imageUrl, description, imageAlt }) => (
 export default function Home() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallButton, setShowInstallButton] = useState(false);
+  // State untuk modal detail penyakit
+  const [selectedDisease, setSelectedDisease] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const handler = (e) => {
@@ -75,6 +78,60 @@ export default function Home() {
     },
   ];
 
+  // Komponen Modal Detail Penyakit
+  const DiseaseDetailModal = ({ disease, onClose }) => {
+    if (!disease) return null;
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-0 relative border border-slate-200 animate-modalShow">
+          {/* Tombol close di pojok kanan atas */}
+          <button
+            className="disease-modal-close"
+            onClick={onClose}
+            aria-label="Tutup"
+            style={{
+              WebkitTapHighlightColor: 'transparent',
+              touchAction: 'manipulation',
+              position: 'absolute',
+              top: 12,
+              right: 12,
+              zIndex: 20,
+              background: '#2196f3',
+              border: '2px solid #fff',
+              borderRadius: '50%',
+              width: 36,
+              height: 36,
+              minWidth: 36,
+              minHeight: 36,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 1px 6px rgba(0,0,0,0.13)',
+              padding: 0,
+              cursor: 'pointer',
+            }}
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+              <line x1="6" y1="6" x2="18" y2="18" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" />
+              <line x1="18" y1="6" x2="6" y2="18" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
+          </button>
+          {/* Gambar */}
+          <img
+            src={disease.imageUrl}
+            alt={disease.name}
+            className="w-full h-64 object-cover rounded-t-2xl mb-0 border-b transition-all duration-300"
+            onError={(e) => { e.target.onerror = null; e.target.src='/no image available.jpg'; }}
+          />
+          <div className="px-7 pt-6 pb-7">
+            <h3 className="text-2xl font-bold text-sky-700 mb-3 text-center">{disease.name}</h3>
+            <p className="text-gray-700 leading-relaxed text-justify text-base">{disease.description}</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="bg-slate-50 min-h-screen">
       {/* Hero Section - Pengenalan Website */}
@@ -122,18 +179,30 @@ export default function Home() {
       {/* Jenis-Jenis Penyakit Kulit Umum (dengan foto placeholder) */}
       <section className="py-10 sm:py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-8 text-center text-justify">Beberapa Kondisi Kulit Umum</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-8 text-center">Beberapa Kondisi Kulit Umum</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7 lg:gap-10">
             {commonDiseases.map((disease) => (
-              <DiseaseInfoCard
+              <div
                 key={disease.name}
-                diseaseName={disease.name}
-                imageUrl={disease.imageUrl}
-                description={disease.description}
-              />
+                onClick={() => { setSelectedDisease(disease); setShowModal(true); }}
+                className="cursor-pointer transform hover:scale-105 transition-transform duration-200"
+              >
+                <DiseaseInfoCard
+                  diseaseName={disease.name}
+                  imageUrl={disease.imageUrl}
+                  description={disease.description}
+                />
+              </div>
             ))}
           </div>
         </div>
+        {/* Modal detail penyakit */}
+        {showModal && (
+          <DiseaseDetailModal
+            disease={selectedDisease}
+            onClose={() => setShowModal(false)}
+          />
+        )}
       </section>
 
       {/* Gejala Umum & Kapan Harus ke Dokter */}
@@ -178,3 +247,21 @@ export default function Home() {
     </div>
   );
 }
+
+/* Tambahkan animasi custom di bawah ini jika belum ada di Tailwind config */
+// @layer utilities {
+//   .animate-fadeInModal {
+//     animation: fadeInModal 0.3s ease;
+//   }
+//   .animate-modalShow {
+//     animation: modalShow 0.3s ease forwards;
+//   }
+//   @keyframes fadeInModal {
+//     from { opacity: 0; }
+//     to { opacity: 1; }
+//   }
+//   @keyframes modalShow {
+//     from { opacity: 0; transform: scale(0.95); }
+//     to { opacity: 1; transform: scale(1); }
+//   }
+// }

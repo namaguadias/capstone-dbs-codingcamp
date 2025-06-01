@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import AuthPresenter from '../../../data/api.js';
+import AuthPresenter from '../../../data/api';
 
 export default function RegisterPresenter({ children }) {
   const [form, setForm] = useState({

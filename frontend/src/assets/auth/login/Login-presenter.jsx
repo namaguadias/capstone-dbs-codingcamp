@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import AuthPresenter from '../../../data/api.js';
+import AuthPresenter, { DiagnosisAPI } from '../../../data/api';
 
 export default function LoginPresenter({ children }) {
   const [email, setEmail] = useState('');

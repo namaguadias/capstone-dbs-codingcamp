@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import AuthPresenter, { DiagnosisAPI } from '../../../data/api';
 
 export default function ScanNowPresenter({ children }) {
   const [image, setImage] = useState(null);
   const [diagnosis, setDiagnosis] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   // Camera related states
   const [cameraOn, setCameraOn] = useState(false);
@@ -11,16 +13,114 @@ export default function ScanNowPresenter({ children }) {
   const streamRef = useRef(null);
   const videoRef = useRef(null);
 
-  const handleImageChange = (e) => {
+  // History state
+  const [history, setHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState('');
+
+  // Fetch diagnosis history
+  const fetchHistory = async () => {
+    setHistoryLoading(true);
+    setHistoryError('');
+    try {
+      const data = await DiagnosisAPI.getHistory(100, 0);
+      setHistory(data);
+    } catch (err) {
+      setHistoryError(err.message);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  // Fetch history on component mount
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  // Delete a diagnosis record by id
+  const deleteHistoryItem = async (id) => {
+    setHistoryError('');
+    try {
+      await DiagnosisAPI.deleteDiagnosis(id);
+      // Remove the deleted item locally without refreshing entire history
+      setHistory((prev) => prev.filter((item) => item.id !== id));
+    } catch (err) {
+      if (err.message.includes('404')) {
+        // Remove the invalid id from history list anyway
+        setHistory((prev) => prev.filter((item) => item.id !== id));
+      } else {
+        setHistoryError(err.message);
+      }
+    }
+  };
+
+  // Clear all history by deleting all records
+  const clearHistory = async () => {
+    setHistoryLoading(true);
+    setHistoryError('');
+    try {
+      // Delete all history items sequentially
+      for (const item of history) {
+        try {
+          await DiagnosisAPI.deleteDiagnosis(item.id);
+        } catch (err) {
+          if (err.message.includes('404')) {
+            // Skip invalid id
+            setHistory((prev) => prev.filter((h) => h.id !== item.id));
+          } else {
+            throw err;
+          }
+        }
+      }
+      setHistory([]);
+    } catch (err) {
+      setHistoryError(err.message);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  // New: handle image upload and diagnosis
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       setLoading(true);
+      setError('');
       setImage(URL.createObjectURL(file));
-      // Simulate diagnosis result for demonstration with delay
-      setTimeout(() => {
-        setDiagnosis('Hasil diagnosa awal: Kemungkinan dermatitis atau eksim.');
+      try {
+        // Call API diagnose
+        const result = await DiagnosisAPI.diagnoseImage(file);
+        setDiagnosis(
+          `Diagnosis: ${result.data.label}\nConfidence: ${result.data.confidence}\nArti: ${result.data.arti}\nSaran: ${result.data.saran}`
+        );
+        // Immediately update history when diagnosis result appears
+        try {
+          const newDiagnosis = await DiagnosisAPI.createDiagnosis({
+            symptoms: [],
+            diagnosis: result.data.label,
+            confidence: result.data.confidence.toString(),
+            recommendations: result.data.saran ? [result.data.saran] : [],
+          });
+          // Append new diagnosis directly to local history state for instant responsiveness
+          setHistory((prev) => [
+            {
+              id: newDiagnosis.id,
+              diagnosis: result.data.label,
+              confidence: result.data.confidence.toString(),
+              recommendations: result.data.saran ? [result.data.saran] : [],
+            },
+            ...prev,
+          ]);
+        } catch (err) {
+          // Handle error silently or set error state if needed
+          console.error('Failed to save diagnosis history:', err);
+        }
+      } catch (err) {
+        setDiagnosis('');
+        setError(err.message);
+      } finally {
         setLoading(false);
-      }, 1500);
+      }
     }
   };
 
@@ -48,7 +148,7 @@ export default function ScanNowPresenter({ children }) {
   };
 
   // Capture photo from video stream
-  const takePhoto = () => {
+  const takePhoto = async () => {
     if (!videoRef.current) return;
     const video = videoRef.current;
     const canvas = document.createElement('canvas');
@@ -56,21 +156,34 @@ export default function ScanNowPresenter({ children }) {
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const photoDataUrl = canvas.toDataURL('image/png');
-
-    setLoading(true);
-    setImage(photoDataUrl);
-    setDiagnosis('');
-    setTimeout(() => {
-      setDiagnosis('Hasil diagnosa awal: Kemungkinan dermatitis atau eksim.');
-      setLoading(false);
-    }, 1500);
+    // Convert canvas to blob for upload
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      setLoading(true);
+      setError('');
+      setImage(canvas.toDataURL('image/png'));
+      try {
+        const file = new File([blob], 'photo.png', { type: 'image/png' });
+        const result = await DiagnosisAPI.diagnoseImage(file);
+        setDiagnosis(
+          `Diagnosis: ${result.label}\nConfidence: ${result.confidence}\nArti: ${result.arti}\nSaran: ${result.saran}`
+        );
+        // Fetch updated history after diagnosis
+        await fetchHistory();
+      } catch (err) {
+        setDiagnosis('');
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }, 'image/png');
   };
 
   // Reset scan to allow new upload or photo
   const resetScan = () => {
     setImage(null);
     setDiagnosis('');
+    setError('');
     setLoading(false);
   };
 
@@ -124,12 +237,19 @@ export default function ScanNowPresenter({ children }) {
     image,
     diagnosis,
     loading,
+    error,
+    history,
+    historyLoading,
+    historyError,
     handleImageChange,
     cameraOn,
     startCamera,
     stopCamera,
     takePhoto,
     resetScan,
+    fetchHistory,
+    deleteHistoryItem,
+    clearHistory,
     videoRef,
   });
 }
