@@ -1,9 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import ScanNowPresenter from './ScanNow-presenter';
 
 export default function ScanNow() {
   const fileInputRef = useRef(null);
-  const [deletingId, setDeletingId] = useState(null);
 
   return (
     <ScanNowPresenter>
@@ -21,9 +20,9 @@ export default function ScanNow() {
         history,
         historyLoading,
         historyError,
-        deleteHistoryItem,
         clearHistory,
         error,
+        deleteHistoryItem,
       }) => {
         // Handler for drag and drop file upload
         const handleDrop = (e) => {
@@ -40,6 +39,8 @@ export default function ScanNow() {
         const handleDragOver = (e) => {
           e.preventDefault();
         };
+
+        // Remove static artiMap, use dynamic arti from history item instead
 
         return (
           <div className="max-w-4xl mx-auto p-6 mt-16 bg-white rounded shadow-md text-left">
@@ -150,33 +151,34 @@ export default function ScanNow() {
               {!historyLoading && history.length === 0 && <p>No history available.</p>}
               {!historyLoading && history.length > 0 && (
                 <>
-                  <ul className="space-y-4 max-h-64 overflow-y-auto border border-gray-300 rounded p-4 bg-gray-50">
-                    {history.map((item) => (
-                      <li key={item.id} className="border-b border-gray-300 pb-2 last:border-b-0 flex justify-between items-center">
-                        <div>
-                          <p className="font-semibold">{item.diagnosis}</p>
-                          <p className="text-sm text-gray-600">Confidence: {item.confidence}</p>
+                  <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-300 rounded p-2 bg-white text-gray-900">
+                    {history.map((item) => {
+                      const arti = item.arti || 'Deskripsi tidak tersedia.';
+                      const saran = item.recommendations && item.recommendations.length > 0 ? item.recommendations[0] : 'Tidak ada saran.';
+                      const text = `Diagnosis: ${item.diagnosis}\nConfidence: ${item.confidence}\nArti: ${arti}\nSaran: ${saran}`;
+                      return (
+                        <div
+                          key={item.id}
+                          className="p-2 bg-white rounded flex justify-between items-center font-sans text-base border-b last:border-b-0"
+                        >
+                          <pre className="whitespace-pre-wrap m-0 flex-grow mr-4 font-sans text-base">{text}</pre>
+                          <button
+                            onClick={() => deleteHistoryItem(item.id)}
+                            className="px-2.5 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition w-24 font-sans text-base"
+                            aria-label={`Delete history item ${item.diagnosis}`}
+                          >
+                            Delete
+                          </button>
                         </div>
+                      );
+                    })}
+                  </div>
                   <button
-                    onClick={() => {
-                      setDeletingId(item.id);
-                      deleteHistoryItem(item.id).finally(() => setDeletingId(null));
-                    }}
-                    className="ml-4 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 w-full max-w-[100px]"
-                    title="Delete this history"
-                    disabled={deletingId === item.id}
+                    onClick={clearHistory}
+                    className="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-28"
                   >
-                    {deletingId === item.id ? 'Menghapus' : 'Delete'}
+                    Clear History
                   </button>
-                      </li>
-                    ))}
-            </ul>
-            <button
-              onClick={clearHistory}
-              className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 w-full max-w-[100px]"
-            >
-              Clear History
-            </button>
                 </>
               )}
             </div>
