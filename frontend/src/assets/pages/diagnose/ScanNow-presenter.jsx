@@ -46,14 +46,14 @@ export default function ScanNowPresenter({ children }) {
   const deleteHistoryItem = async (id) => {
     setHistoryError('');
     try {
+      const prevHistoryLength = history.length;
       await DiagnosisAPI.deleteDiagnosis(id);
-      // Refresh history from backend after deletion
       await fetchHistory();
-      // Reload page to reflect changes
+      // Simpan flag ke localStorage sebelum reload
+      localStorage.setItem('checkHistoryAfterReload', JSON.stringify({ prevHistoryLength }));
       window.location.reload();
     } catch (err) {
       if (err.message.includes('404')) {
-        // Remove the invalid id from history list anyway
         setHistory((prev) => prev.filter((item) => item.id !== id));
       } else {
         setHistoryError(err.message);
@@ -66,6 +66,7 @@ export default function ScanNowPresenter({ children }) {
     setHistoryLoading(true);
     setHistoryError('');
     try {
+      const prevHistoryLength = history.length;
       // Delete all history items sequentially
       for (const item of history) {
         try {
@@ -81,7 +82,8 @@ export default function ScanNowPresenter({ children }) {
       }
       // Refresh history from backend after clearing
       await fetchHistory();
-      // Reload page to reflect changes
+      // Simpan flag ke localStorage sebelum reload
+      localStorage.setItem('checkHistoryAfterReload', JSON.stringify({ prevHistoryLength }));
       window.location.reload();
     } catch (err) {
       setHistoryError(err.message);
@@ -108,24 +110,29 @@ export default function ScanNowPresenter({ children }) {
       try {
         // Call API diagnose
         const result = await DiagnosisAPI.diagnoseImage(file);
+        // Support both {label, confidence, ...} and {data: {label, ...}}
+        const label = result.label || (result.data && result.data.label) || 'undefined';
+        const confidence = result.confidence || (result.data && result.data.confidence) || 'undefined';
+        const arti = result.arti || (result.data && result.data.arti) || 'undefined';
+        const saran = result.saran || (result.data && result.data.saran) || 'undefined';
         setDiagnosis(
-          `Diagnosis: ${result.data.label}\nConfidence: ${result.data.confidence}\nArti: ${result.data.arti}\nSaran: ${result.data.saran}`
+          `Diagnosis: ${label}\nConfidence: ${confidence}\nArti: ${arti}\nSaran: ${saran}`
         );
         // Immediately update history when diagnosis result appears
         try {
           const newDiagnosis = await DiagnosisAPI.createDiagnosis({
             symptoms: [],
-            diagnosis: result.data.label,
-            confidence: result.data.confidence.toString(),
-            recommendations: result.data.saran ? [result.data.saran] : [],
+            diagnosis: label,
+            confidence: confidence.toString(),
+            recommendations: saran ? [saran] : [],
           });
           // Append new diagnosis directly to local history state for instant responsiveness
           setHistory((prev) => [
             {
               id: newDiagnosis.id,
-              diagnosis: result.data.label,
-              confidence: result.data.confidence.toString(),
-              recommendations: result.data.saran ? [result.data.saran] : [],
+              diagnosis: label,
+              confidence: confidence.toString(),
+              recommendations: saran ? [saran] : [],
             },
             ...prev,
           ]);
@@ -183,8 +190,13 @@ export default function ScanNowPresenter({ children }) {
       try {
         const file = new File([blob], 'photo.png', { type: 'image/png' });
         const result = await DiagnosisAPI.diagnoseImage(file);
+        // Support both {label, confidence, ...} and {data: {label, ...}}
+        const label = result.label || (result.data && result.data.label) || 'undefined';
+        const confidence = result.confidence || (result.data && result.data.confidence) || 'undefined';
+        const arti = result.arti || (result.data && result.data.arti) || 'undefined';
+        const saran = result.saran || (result.data && result.data.saran) || 'undefined';
         setDiagnosis(
-          `Diagnosis: ${result.label}\nConfidence: ${result.confidence}\nArti: ${result.arti}\nSaran: ${result.saran}`
+          `Diagnosis: ${label}\nConfidence: ${confidence}\nArti: ${arti}\nSaran: ${saran}`
         );
         // Fetch updated history after diagnosis
         await fetchHistory();
@@ -250,6 +262,18 @@ export default function ScanNowPresenter({ children }) {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
+
+  // useEffect untuk cek notifikasi setelah reload
+  useEffect(() => {
+    const checkFlag = localStorage.getItem('checkHistoryAfterReload');
+    if (checkFlag) {
+      const { prevHistoryLength } = JSON.parse(checkFlag);
+      localStorage.removeItem('checkHistoryAfterReload');
+      if (history.length === prevHistoryLength) {
+        alert('History belum berubah, silakan tekan tombol update history.');
+      }
+    }
+  }, [history]);
 
   return children({
     image,
