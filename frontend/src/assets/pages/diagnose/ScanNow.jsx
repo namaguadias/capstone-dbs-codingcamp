@@ -240,6 +240,10 @@ export default function ScanNow() {
                             aria-label={`Delete history item ${item.diagnosis}`}
                             disabled={buttonLoading.delete === item.id}
                             style={{
+                              backgroundColor:
+                                buttonLoading.delete === item.id
+                                  ? "#c53030"
+                                  : "#e53e3e",
                               fontSize: "1rem",
                               fontWeight: 600,
                               minWidth: "100px",
