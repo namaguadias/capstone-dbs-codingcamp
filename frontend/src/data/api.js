@@ -154,7 +154,7 @@ const DiagnosisAPI = {
     return response.json();
   },
 
-  // POST /diagnosis - create new diagnosis record
+  // POST /diagnose - create new diagnose record
   createDiagnosis: async (data) => {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('Not authenticated');
@@ -177,7 +177,10 @@ const DiagnosisAPI = {
   getHistory: async (limit = 10, offset = 0) => {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('Not authenticated');
-    const response = await fetch(`${BASE_URL}/diagnosis/history?limit=${limit}&offset=${offset}`, {
+    const url = new URL(`${BASE_URL}/diagnosis/history`);
+    url.searchParams.append('limit', limit);
+    url.searchParams.append('offset', offset);
+    const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -187,7 +190,9 @@ const DiagnosisAPI = {
       const errorData = await response.json();
       throw new Error(errorData.error || 'Fetch history failed');
     }
-    return response.json();
+    const data = await response.json();
+    // Assuming the response is an object with a data array containing history items
+    return data.data || data;
   },
 
   // GET /diagnosis/{id} - get diagnosis detail

@@ -239,7 +239,19 @@ textarea:focus {
 
 /* ... (CSS untuk LoadingOverlay, Loader, Keyframes tetap sama) ... */
 .loading-overlay { position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.3); display: flex; justify-content: center; align-items: center; animation: fadeIn 0.5s ease-in forwards; z-index: 9999;}
-.loader { border-radius: 50%; border: 8px solid #e2e8f0;  border-top: 8px solid #3498db; width: 64px; height: 64px; animation: spin 1s linear infinite, pulse 2s ease-in-out infinite; box-shadow: 0 0 10px #3498db;}
+.loader {
+  border: 3px solid #fff;
+  border-top: 3px solid #1976d2;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+.loader-yellow {
+  border-top: 3px solid #eab308;
+}
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); }}
 @keyframes pulse { 0%, 100% { box-shadow: 0 0 10px #3498db; } 50% { box-shadow: 0 0 20px #00b4d8; }}
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; }}
@@ -580,4 +592,20 @@ textarea:focus {
     height: 220px !important;
     border-radius: 18px 18px 0 0 !important;
   }
+}
+
+/* Tambahan untuk tombol Update agar konsisten dengan tombol Delete */
+.custom-update-btn {
+  min-width: 96px;
+  max-width: 180px;
+  width: auto;
+  height: 40px;
+  font-size: 1rem;
+  padding: 0.375rem 1.5rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  white-space: nowrap;
 }

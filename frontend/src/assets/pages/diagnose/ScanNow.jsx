@@ -3,6 +3,12 @@ import ScanNowPresenter from './ScanNow-presenter';
 
 export default function ScanNow() {
   const fileInputRef = useRef(null);
+  const [buttonLoading, setButtonLoading] = React.useState({
+    scan: false,
+    delete: null, // id
+    clear: false,
+    update: false,
+  });
 
   return (
     <ScanNowPresenter>
@@ -15,7 +21,6 @@ export default function ScanNow() {
         startCamera,
         stopCamera,
         takePhoto,
-        resetScan,
         videoRef,
         history,
         historyLoading,
@@ -117,7 +122,7 @@ export default function ScanNow() {
             )}
 
             {image && !loading && (
-              <div className="mb-4 transition-opacity duration-500 ease-in-out">
+              <div className="mb-4 flex justify-center transition-opacity duration-500 ease-in-out">
                 <img src={image} alt="Uploaded skin" className="max-w-full rounded shadow" />
               </div>
             )}
@@ -129,10 +134,17 @@ export default function ScanNow() {
                 </div>
                 {(image || diagnosis) && !loading && (
                   <button
-                    onClick={resetScan}
-                    className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                    onClick={async () => {
+                      setButtonLoading((prev) => ({ ...prev, scan: true }));
+                      window.location.reload();
+                    }}
+                    className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 flex items-center justify-center"
+                    disabled={buttonLoading.scan}
                   >
-                    Scan Lagi
+                    {buttonLoading.scan && (
+                      <span className="loader loader-yellow mr-2"></span>
+                    )}
+                    {buttonLoading.scan ? 'Loading...' : 'Scan Lagi'}
                   </button>
                 )}
               </>
@@ -145,7 +157,31 @@ export default function ScanNow() {
 
             {/* History Section */}
             <div className="mt-8">
-              <h2 className="text-2xl font-semibold mb-4 text-[#2C7A7B]">History Diagnosis</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-semibold text-[#2C7A7B]">History Diagnosis</h2>
+                <button
+                  onClick={async () => {
+                    setButtonLoading((prev) => ({ ...prev, update: true }));
+                    if (typeof historyLoading === 'boolean' && typeof historyError === 'string') {
+                      if (typeof window !== 'undefined') {
+                        setTimeout(() => {
+                          setButtonLoading((prev) => ({ ...prev, update: false }));
+                        }, 1000);
+                        window.location.reload();
+                        return;
+                      }
+                    }
+                    setButtonLoading((prev) => ({ ...prev, update: false }));
+                  }}
+                  className="ml-2 px-2.5 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition font-sans text-base custom-update-btn flex items-center justify-center"
+                  disabled={buttonLoading.update}
+                >
+                  {buttonLoading.update && (
+                    <span className="loader mr-2"></span>
+                  )}
+                  {buttonLoading.update ? 'Updating...' : 'Update History'}
+                </button>
+              </div>
               {historyLoading && <p>Loading history...</p>}
               {historyError && <p className="text-red-600">Error: {historyError}</p>}
               {!historyLoading && history.length === 0 && <p>No history available.</p>}
@@ -153,9 +189,9 @@ export default function ScanNow() {
                 <>
                   <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-300 rounded p-2 bg-white text-gray-900">
                     {history.map((item) => {
-                      const arti = item.arti || 'Deskripsi tidak tersedia.';
+                      const symptoms = item.symptoms || 'Deskripsi tidak tersedia.';
                       const saran = item.recommendations && item.recommendations.length > 0 ? item.recommendations[0] : 'Tidak ada saran.';
-                      const text = `Diagnosis: ${item.diagnosis}\nConfidence: ${item.confidence}\nArti: ${arti}\nSaran: ${saran}`;
+                      const text = `Diagnosis: ${item.diagnosis}\nConfidence: ${item.confidence}\nArti: ${symptoms}\nSaran: ${saran}`;
                       return (
                         <div
                           key={item.id}
@@ -163,21 +199,40 @@ export default function ScanNow() {
                         >
                           <pre className="whitespace-pre-wrap m-0 flex-grow mr-4 font-sans text-base">{text}</pre>
                           <button
-                            onClick={() => deleteHistoryItem(item.id)}
-                            className="px-2.5 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition w-24 font-sans text-base"
+                            onClick={async () => {
+                              setButtonLoading((prev) => ({ ...prev, delete: item.id }));
+                              await deleteHistoryItem(item.id);
+                              setButtonLoading((prev) => ({ ...prev, delete: null }));
+                            }}
+                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center justify-center text-base font-semibold"
                             aria-label={`Delete history item ${item.diagnosis}`}
+                            disabled={buttonLoading.delete === item.id}
+                            style={{ fontSize: '1rem', fontWeight: 600, minWidth: '100px', width: buttonLoading.delete === item.id ? '130px' : '100px', transition: 'width 0.2s' }}
                           >
-                            Delete
+                            {buttonLoading.delete === item.id && (
+                              <span className="loader mr-2" style={{ width: '18px', height: '18px', borderWidth: '3px' }}></span>
+                            )}
+                            {buttonLoading.delete === item.id ? 'Loading...' : 'Delete'}
                           </button>
                         </div>
                       );
                     })}
                   </div>
                   <button
-                    onClick={clearHistory}
-                    className="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-28"
+                    onClick={async () => {
+                      setButtonLoading((prev) => ({ ...prev, clear: true }));
+                      await clearHistory();
+                      setTimeout(() => {
+                        setButtonLoading((prev) => ({ ...prev, clear: false }));
+                      }, 1000); // pastikan spinner terlihat minimal 1 detik
+                    }}
+                    className="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-28 flex items-center justify-center min-w-[70px] text-sm font-semibold"
+                    disabled={buttonLoading.clear}
                   >
-                    Clear History
+                    {buttonLoading.clear && (
+                      <span className="loader mr-2"></span>
+                    )}
+                    {buttonLoading.clear ? 'Loading...' : 'Clear History'}
                   </button>
                 </>
               )}

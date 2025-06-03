@@ -23,10 +23,15 @@ export default function ScanNowPresenter({ children }) {
     setHistoryLoading(true);
     setHistoryError('');
     try {
-      const data = await DiagnosisAPI.getHistory(100, 0);
-      setHistory(data);
+      const data = await DiagnosisAPI.getHistory();
+      // Ensure each history item has arti field, fallback to empty string if missing
+      const historyWithArti = data.map(item => ({
+        ...item,
+        arti: item.arti || '',
+      }));
+      setHistory(historyWithArti);
     } catch (err) {
-      setHistoryError(err.message);
+      setHistoryError(err.message); 
     } finally {
       setHistoryLoading(false);
     }
@@ -42,8 +47,10 @@ export default function ScanNowPresenter({ children }) {
     setHistoryError('');
     try {
       await DiagnosisAPI.deleteDiagnosis(id);
-      // Remove the deleted item locally without refreshing entire history
-      setHistory((prev) => prev.filter((item) => item.id !== id));
+      // Refresh history from backend after deletion
+      await fetchHistory();
+      // Reload page to reflect changes
+      window.location.reload();
     } catch (err) {
       if (err.message.includes('404')) {
         // Remove the invalid id from history list anyway
@@ -72,7 +79,10 @@ export default function ScanNowPresenter({ children }) {
           }
         }
       }
-      setHistory([]);
+      // Refresh history from backend after clearing
+      await fetchHistory();
+      // Reload page to reflect changes
+      window.location.reload();
     } catch (err) {
       setHistoryError(err.message);
     } finally {
@@ -84,6 +94,14 @@ export default function ScanNowPresenter({ children }) {
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Validate file type
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+      if (!allowedTypes.includes(file.type)) {
+        setError('Only PNG, JPEG, and JPG files are allowed.');
+        setImage(null);
+        setDiagnosis('');
+        return;
+      }
       setLoading(true);
       setError('');
       setImage(URL.createObjectURL(file));
