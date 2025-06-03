@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import ScanNowPresenter from './ScanNow-presenter';
+import React, { useRef } from "react";
+import ScanNowPresenter from "./ScanNow-presenter";
 
 export default function ScanNow() {
   const fileInputRef = useRef(null);
@@ -92,9 +92,11 @@ export default function ScanNow() {
 
             <div
               className="border-2 border-dashed border-blue-400 rounded p-6 mb-4 cursor-pointer hover:bg-blue-50 transition"
-              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+              onClick={() =>
+                fileInputRef.current && fileInputRef.current.click()
+              }
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (e.key === "Enter" || e.key === " ") {
                   fileInputRef.current && fileInputRef.current.click();
                 }
               }}
@@ -104,7 +106,9 @@ export default function ScanNow() {
               tabIndex={0}
             >
               <p className="text-blue-600 text-center mb-2">
-                {loading ? 'Processing image...' : 'Click or drag and drop an image to upload'}
+                {loading
+                  ? "Processing image..."
+                  : "Click or drag and drop an image to upload"}
               </p>
               <input
                 type="file"
@@ -123,7 +127,11 @@ export default function ScanNow() {
 
             {image && !loading && (
               <div className="mb-4 flex justify-center transition-opacity duration-500 ease-in-out">
-                <img src={image} alt="Uploaded skin" className="max-w-full rounded shadow" />
+                <img
+                  src={image}
+                  alt="Uploaded skin"
+                  className="max-w-full rounded shadow"
+                />
               </div>
             )}
 
@@ -144,7 +152,7 @@ export default function ScanNow() {
                     {buttonLoading.scan && (
                       <span className="loader loader-yellow mr-2"></span>
                     )}
-                    {buttonLoading.scan ? 'Loading...' : 'Scan Lagi'}
+                    {buttonLoading.scan ? "Loading..." : "Save History Data"}
                   </button>
                 )}
               </>
@@ -158,14 +166,22 @@ export default function ScanNow() {
             {/* History Section */}
             <div className="mt-8">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-semibold text-[#2C7A7B]">History Diagnosis</h2>
+                <h2 className="text-2xl font-semibold text-[#2C7A7B]">
+                  History Diagnosis
+                </h2>
                 <button
                   onClick={async () => {
                     setButtonLoading((prev) => ({ ...prev, update: true }));
-                    if (typeof historyLoading === 'boolean' && typeof historyError === 'string') {
-                      if (typeof window !== 'undefined') {
+                    if (
+                      typeof historyLoading === "boolean" &&
+                      typeof historyError === "string"
+                    ) {
+                      if (typeof window !== "undefined") {
                         setTimeout(() => {
-                          setButtonLoading((prev) => ({ ...prev, update: false }));
+                          setButtonLoading((prev) => ({
+                            ...prev,
+                            update: false,
+                          }));
                         }, 1000);
                         window.location.reload();
                         return;
@@ -179,40 +195,74 @@ export default function ScanNow() {
                   {buttonLoading.update && (
                     <span className="loader mr-2"></span>
                   )}
-                  {buttonLoading.update ? 'Updating...' : 'Update History'}
+                  {buttonLoading.update ? "Updating..." : "Update History"}
                 </button>
               </div>
               {historyLoading && <p>Loading history...</p>}
-              {historyError && <p className="text-red-600">Error: {historyError}</p>}
-              {!historyLoading && history.length === 0 && <p>No history available.</p>}
+              {historyError && (
+                <p className="text-red-600">Error: {historyError}</p>
+              )}
+              {!historyLoading && history.length === 0 && (
+                <p>No history available.</p>
+              )}
               {!historyLoading && history.length > 0 && (
                 <>
                   <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-300 rounded p-2 bg-white text-gray-900">
                     {history.map((item) => {
-                      const symptoms = item.symptoms || 'Deskripsi tidak tersedia.';
-                      const saran = item.recommendations && item.recommendations.length > 0 ? item.recommendations[0] : 'Tidak ada saran.';
+                      const symptoms =
+                        item.symptoms || "Deskripsi tidak tersedia.";
+                      const saran =
+                        item.recommendations && item.recommendations.length > 0
+                          ? item.recommendations[0]
+                          : "Tidak ada saran.";
                       const text = `Diagnosis: ${item.diagnosis}\nConfidence: ${item.confidence}\nArti: ${symptoms}\nSaran: ${saran}`;
                       return (
                         <div
                           key={item.id}
                           className="p-2 bg-white rounded flex justify-between items-center font-sans text-base border-b last:border-b-0"
                         >
-                          <pre className="whitespace-pre-wrap m-0 flex-grow mr-4 font-sans text-base">{text}</pre>
+                          <pre className="whitespace-pre-wrap m-0 flex-grow mr-4 font-sans text-base">
+                            {text}
+                          </pre>
                           <button
                             onClick={async () => {
-                              setButtonLoading((prev) => ({ ...prev, delete: item.id }));
+                              setButtonLoading((prev) => ({
+                                ...prev,
+                                delete: item.id,
+                              }));
                               await deleteHistoryItem(item.id);
-                              setButtonLoading((prev) => ({ ...prev, delete: null }));
+                              setButtonLoading((prev) => ({
+                                ...prev,
+                                delete: null,
+                              }));
                             }}
-                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center justify-center text-base font-semibold"
+                            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition flex items-center justify-center text-base font-semibold"
                             aria-label={`Delete history item ${item.diagnosis}`}
                             disabled={buttonLoading.delete === item.id}
-                            style={{ fontSize: '1rem', fontWeight: 600, minWidth: '100px', width: buttonLoading.delete === item.id ? '130px' : '100px', transition: 'width 0.2s' }}
+                            style={{
+                              fontSize: "1rem",
+                              fontWeight: 600,
+                              minWidth: "100px",
+                              width:
+                                buttonLoading.delete === item.id
+                                  ? "130px"
+                                  : "100px",
+                              transition: "width 0.2s",
+                            }}
                           >
                             {buttonLoading.delete === item.id && (
-                              <span className="loader mr-2" style={{ width: '18px', height: '18px', borderWidth: '3px' }}></span>
+                              <span
+                                className="loader mr-2"
+                                style={{
+                                  width: "18px",
+                                  height: "18px",
+                                  borderWidth: "3px",
+                                }}
+                              ></span>
                             )}
-                            {buttonLoading.delete === item.id ? 'Loading...' : 'Delete'}
+                            {buttonLoading.delete === item.id
+                              ? "Loading..."
+                              : "Delete"}
                           </button>
                         </div>
                       );
@@ -232,7 +282,7 @@ export default function ScanNow() {
                     {buttonLoading.clear && (
                       <span className="loader mr-2"></span>
                     )}
-                    {buttonLoading.clear ? 'Loading...' : 'Clear History'}
+                    {buttonLoading.clear ? "Loading..." : "Clear History"}
                   </button>
                 </>
               )}
