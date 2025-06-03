@@ -12,7 +12,10 @@ import Logout from './assets/auth/logout/Logout';
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const [page, setPage] = useState('login');
+  const [page, setPage] = useState('home'); // Default ke homepage
+  const [notification, setNotification] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   // Save page to localStorage whenever it changes
   useEffect(() => {
@@ -20,7 +23,7 @@ export default function App() {
       localStorage.setItem('currentPage', page);
     }
   }, [page, user]);
-  
+
   // On mount, restore user and page from localStorage
   useEffect(() => {
     setLoading(true);
@@ -34,8 +37,6 @@ export default function App() {
       setLoading(false);
     }, 500);
   }, []);
-  const [loading, setLoading] = useState(false);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   const handleLoginSuccess = (user) => {
     setUser(user);
@@ -49,9 +50,16 @@ export default function App() {
     setPage('home');
   };
 
-  const handleNavigate = (page) => {
+  const handleNavigate = (targetPage) => {
+    // Jika user belum login dan ingin ke scannow/profile, tampilkan notifikasi
+    if (!user && (targetPage === 'scannow' || targetPage === 'Profile')) {
+      setNotification('Silakan login terlebih dahulu untuk mengakses fitur ini.');
+      setTimeout(() => setNotification(''), 2500);
+      setPage('login');
+      return;
+    }
     setLoading(true);
-    setPage(page);
+    setPage(targetPage);
     setTimeout(() => {
       setLoading(false);
     }, 300);
@@ -88,48 +96,38 @@ export default function App() {
     return <LoadingIndicator />;
   }
 
-  if (user) {
-    return (
-      <>
-        <Navbar onNavigate={handleNavigate} isOffline={!isOnline} />
-        {!isOnline && (
-          <div className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center py-2 z-50">
-            You are currently offline.
-          </div>
-        )}
-        <div className="w-full min-h-screen p-6 mt-6 bg-white rounded shadow-md">
-          {page === 'home' && <Home />}
-          {page === 'about' && <AboutUs />}
-          {page === 'scannow' && <ScanNow />}
-          {page === 'Profile' && <Profile />}
-          {page === 'logout' && <Logout />}
-        </div>
-        <Footer />
-      </>
-    );
-  }
-
   return (
-    <div>
-      {page === 'login' ? (
-        <>
-          {!isOnline && (
-            <div className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center py-2 z-50">
-              You are currently offline.
-            </div>
-          )}
-          <Login onLoginSuccess={handleLoginSuccess} onSwitchToRegister={() => handleNavigate('register')} />
-        </>
-      ) : (
-        <>
-          {!isOnline && (
-            <div className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center py-2 z-50">
-              You are currently offline.
-            </div>
-          )}
-          <Register onRegisterSuccess={handleRegisterSuccess} onSwitchToLogin={() => handleNavigate('login')} />
-        </>
+    <>
+      <Navbar onNavigate={handleNavigate} isOffline={!isOnline} user={user} />
+      {!isOnline && (
+        <div className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center py-2 z-50">
+          You are currently offline.
+        </div>
       )}
-    </div>
+      {notification && (
+        <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black px-4 py-2 rounded shadow z-50">
+          {notification}
+        </div>
+      )}
+      <div className="w-full min-h-screen p-6 mt-6 bg-white rounded shadow-md">
+        {user ? (
+          <>
+            {page === 'home' && <Home />}
+            {page === 'about' && <AboutUs />}
+            {page === 'scannow' && <ScanNow />}
+            {page === 'Profile' && <Profile />}
+            {page === 'logout' && <Logout onLogout={() => { setUser(null); setPage('home'); }} />}
+          </>
+        ) : (
+          <>
+            {page === 'home' && <Home />}
+            {page === 'about' && <AboutUs />}
+            {page === 'login' && <Login onLoginSuccess={handleLoginSuccess} onSwitchToRegister={() => handleNavigate('register')} />}
+            {page === 'register' && <Register onRegisterSuccess={handleRegisterSuccess} onSwitchToLogin={() => handleNavigate('login')} />}
+          </>
+        )}
+      </div>
+      <Footer />
+    </>
   );
 }

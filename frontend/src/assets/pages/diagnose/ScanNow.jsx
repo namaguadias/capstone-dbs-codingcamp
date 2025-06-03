@@ -1,5 +1,24 @@
 import React, { useRef } from 'react';
-import ScanNowPresenter from './ScanNow-presenter';
+import ScanNowPresenter from './ScanNow-presenter'; // Pastikan path ini benar
+
+// Contoh SVG Ikon untuk Upload
+const UploadIcon = () => (
+  <svg className="w-12 h-12 mx-auto text-gray-400 group-hover:text-teal-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+  </svg>
+);
+
+// Contoh SVG Ikon untuk Riwayat Kosong
+const HistoryIcon = () => (
+  <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+  </svg>
+);
+
+// Komponen Loader Sederhana dengan Tailwind (sesuai kode Anda)
+const ButtonSpinner = ({ colorClass = 'border-white' }) => (
+  <div className={`animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 ${colorClass} mr-2`}></div>
+);
 
 export default function ScanNow() {
   const fileInputRef = useRef(null);
@@ -9,6 +28,13 @@ export default function ScanNow() {
     clear: false,
     update: false,
   });
+
+  // Kelas tombol (sesuai kode Anda)
+  const baseButtonClass = "font-semibold py-2 px-4 rounded shadow-md hover:shadow-lg transition-all duration-150 ease-in-out flex items-center justify-center min-w-[120px]";
+  const primaryButtonClass = `${baseButtonClass} bg-teal-600 hover:bg-teal-700 text-white`;
+  const destructiveButtonClass = `${baseButtonClass} bg-red-700 hover:bg-red-800 text-white`;
+  const secondaryButtonClass = `${baseButtonClass} border border-teal-600 text-teal-600 hover:bg-teal-600 hover:text-white`;
+
 
   return (
     <ScanNowPresenter>
@@ -29,12 +55,10 @@ export default function ScanNow() {
         error,
         deleteHistoryItem,
       }) => {
-        // Handler for drag and drop file upload
         const handleDrop = (e) => {
           e.preventDefault();
           if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
             const file = e.dataTransfer.files[0];
-            // Create a synthetic event to pass to handleImageChange
             const syntheticEvent = { target: { files: [file] } };
             handleImageChange(syntheticEvent);
             e.dataTransfer.clearData();
@@ -45,32 +69,30 @@ export default function ScanNow() {
           e.preventDefault();
         };
 
-        // Remove static artiMap, use dynamic arti from history item instead
-
         return (
-          <div className="max-w-4xl mx-auto p-6 mt-16 bg-white rounded shadow-md text-left">
-            <h1 className="text-3xl font-bold mb-6 text-[#2C7A7B]">ScanNow</h1>
+          <div className="max-w-4xl mx-auto p-6 md:p-8 mt-10 mb-10 bg-white rounded-xl shadow-2xl">
+            <h1 className="text-4xl font-bold mb-8 text-center text-teal-700">ScanNow</h1>
 
-            <div className="mb-4 flex space-x-4">
-              {!cameraOn && (
+            {/* Tombol Kamera */}
+            <div className="mb-6 flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
+              {!cameraOn ? (
                 <button
                   onClick={startCamera}
-                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                  className={`${primaryButtonClass} w-full sm:w-auto`}
                 >
                   Nyalakan Kamera
                 </button>
-              )}
-              {cameraOn && (
+              ) : (
                 <>
                   <button
                     onClick={stopCamera}
-                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                    className={`${destructiveButtonClass} w-full sm:w-auto`}
                   >
                     Matikan Kamera
                   </button>
                   <button
                     onClick={takePhoto}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    className={`${primaryButtonClass} w-full sm:w-auto`}
                   >
                     Ambil Foto
                   </button>
@@ -78,20 +100,22 @@ export default function ScanNow() {
               )}
             </div>
 
+            {/* Tampilan Video Kamera */}
             {cameraOn && (
-              <div className="mb-4">
+              <div className="mb-6 rounded-lg overflow-hidden shadow-md">
                 <video
                   ref={videoRef}
                   autoPlay
                   playsInline
                   muted
-                  className="w-full max-h-96 rounded shadow"
+                  className="w-full max-h-96 h-auto"
                 />
               </div>
             )}
 
+            {/* Area Upload File */}
             <div
-              className="border-2 border-dashed border-blue-400 rounded p-6 mb-4 cursor-pointer hover:bg-blue-50 transition"
+              className="group border-2 border-dashed border-gray-300 hover:border-teal-500 rounded-lg p-6 sm:p-10 mb-6 cursor-pointer bg-gray-50 hover:bg-teal-50 transition-all duration-200"
               onClick={() => fileInputRef.current && fileInputRef.current.click()}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -102,10 +126,17 @@ export default function ScanNow() {
               onDragOver={handleDragOver}
               role="button"
               tabIndex={0}
+              aria-label="Upload an image"
             >
-              <p className="text-blue-600 text-center mb-2">
-                {loading ? 'Processing image...' : 'Click or drag and drop an image to upload'}
-              </p>
+              <div className="flex flex-col items-center justify-center">
+                <UploadIcon />
+                <p className="text-gray-600 group-hover:text-teal-700 text-center mt-2">
+                  {loading ? 'Memproses gambar...' : 'Klik atau seret gambar untuk diunggah'}
+                </p>
+                <p className="text-xs text-gray-400 group-hover:text-teal-500 text-center mt-1">
+                  Format yang didukung: JPG, PNG, dll.
+                </p>
+              </div>
               <input
                 type="file"
                 accept="image/*"
@@ -115,126 +146,183 @@ export default function ScanNow() {
               />
             </div>
 
+            {/* Loading Utama Setelah Upload/Scan */}
             {loading && (
-              <div className="flex justify-center mb-4">
-                <div className="loader border-blue-600 border-t-blue-300"></div>
+              <div className="flex justify-center items-center my-6 p-4 bg-teal-50 rounded-lg">
+                <ButtonSpinner colorClass="border-teal-600" />
+                <p className="ml-2 text-teal-700">Sedang menganalisis gambar...</p>
               </div>
             )}
 
-            {image && !loading && (
-              <div className="mb-4 flex justify-center transition-opacity duration-500 ease-in-out">
-                <img src={image} alt="Uploaded skin" className="max-w-full rounded shadow" />
-              </div>
-            )}
-
-            {diagnosis && !loading && (
-              <>
-                <div className="p-4 bg-blue-100 text-blue-800 rounded transition-opacity duration-500 ease-in-out whitespace-pre-line">
-                  {diagnosis}
+            {/* Hasil Diagnosis dengan Layout Responsif */}
+            {image && !loading && ( 
+              <div className="my-8 pt-6 border-t border-gray-200">
+                <div className="flex flex-col md:flex-row md:space-x-6 lg:space-x-8">
+                  <div className="md:w-2/5 lg:w-1/3 flex-shrink-0 mb-6 md:mb-0 flex justify-center md:justify-start items-start">
+                    <img 
+                      src={image} 
+                      alt="Pratinjau Gambar Hasil Scan" 
+                      className="max-w-full h-auto md:max-h-[350px] lg:max-h-[400px] object-contain rounded-lg shadow-lg border border-gray-200"
+                    />
+                  </div>
+                  {diagnosis && ( 
+                    <div className="md:w-3/5 lg:w-2/3">
+                      <div className="p-4 sm:p-5 bg-teal-50 text-teal-800 rounded-lg shadow-md h-full">
+                        <h3 className="text-xl sm:text-2xl font-semibold mb-3 text-teal-700 border-b border-teal-200 pb-2">
+                          Hasil Diagnosis
+                        </h3>
+                        {typeof diagnosis === 'object' && diagnosis !== null ? (
+                          <div className="space-y-3 text-sm sm:text-base"> {/* Tambah space-y-3 untuk jarak antar field */}
+                            {diagnosis.name && <p><strong className="font-semibold text-teal-600">Diagnosis:</strong> {diagnosis.name}</p>}
+                            {diagnosis.confidence !== undefined && <p><strong className="font-semibold text-teal-600">Tingkat Keyakinan:</strong> {`${(diagnosis.confidence * 100).toFixed(0)}%`}</p>}
+                            {diagnosis.arti && <div><strong className="font-semibold text-teal-600 block mb-0.5">Arti/Gejala:</strong> <span className="whitespace-pre-line block leading-relaxed">{diagnosis.arti}</span></div>}
+                            {diagnosis.catatan && <div><strong className="font-semibold text-teal-600 block mb-0.5">Catatan:</strong> <span className="whitespace-pre-line block leading-relaxed">{diagnosis.catatan}</span></div>}
+                            {diagnosis.saran && <div><strong className="font-semibold text-teal-600 block mb-0.5">Saran:</strong> <span className="whitespace-pre-line block leading-relaxed">{diagnosis.saran}</span></div>}
+                          </div>
+                        ) : (
+                          <div className="whitespace-pre-line text-sm sm:text-base leading-relaxed">
+                            {diagnosis} 
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                {(image || diagnosis) && !loading && (
-                  <button
-                    onClick={async () => {
-                      setButtonLoading((prev) => ({ ...prev, scan: true }));
-                      window.location.reload();
-                    }}
-                    className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 flex items-center justify-center"
-                    disabled={buttonLoading.scan}
-                  >
-                    {buttonLoading.scan && (
-                      <span className="loader loader-yellow mr-2"></span>
-                    )}
-                    {buttonLoading.scan ? 'Loading...' : 'Scan Lagi'}
-                  </button>
+                {diagnosis && ( 
+                  <div className="mt-8"> 
+                    <button
+                      onClick={async () => {
+                        setButtonLoading((prev) => ({ ...prev, scan: true }));
+                        if (typeof window !== 'undefined') window.location.reload();
+                      }}
+                      className="font-semibold py-2 px-4 rounded shadow-md hover:shadow-lg transition-all duration-150 ease-in-out flex items-center justify-center min-w-[120px] bg-gradient-to-r from-emerald-400 via-green-500 to-lime-400 hover:from-emerald-500 hover:to-lime-500 text-white w-full"
+                      disabled={buttonLoading.scan}
+                    >
+                      {buttonLoading.scan && <ButtonSpinner colorClass="border-white" />} 
+                      {buttonLoading.scan ? 'Memuat...' : 'Save History Data'}
+                    </button>
+                  </div>
                 )}
-              </>
-            )}
-            {error && !loading && (
-              <div className="mt-4 p-4 bg-red-100 text-red-700 rounded">
-                Error: {error}
               </div>
             )}
 
-            {/* History Section */}
-            <div className="mt-8">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-semibold text-[#2C7A7B]">History Diagnosis</h2>
+            {/* Tampilan Error */}
+            {error && !loading && (
+              <div className="mt-4 p-4 bg-red-100 text-red-700 rounded-lg shadow">
+                <strong>Error:</strong> {error}
+              </div>
+            )}
+
+            {/* Bagian Riwayat Diagnosis */}
+            <div className="mt-10 pt-6 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row items-center justify-between mb-4">
+                <h2 className="text-3xl font-semibold text-teal-700 mb-3 sm:mb-0">Riwayat Diagnosis</h2>
                 <button
                   onClick={async () => {
                     setButtonLoading((prev) => ({ ...prev, update: true }));
-                    if (typeof historyLoading === 'boolean' && typeof historyError === 'string') {
-                      if (typeof window !== 'undefined') {
-                        setTimeout(() => {
-                          setButtonLoading((prev) => ({ ...prev, update: false }));
-                        }, 1000);
+                    if (typeof window !== 'undefined') {
                         window.location.reload();
-                        return;
-                      }
                     }
-                    setButtonLoading((prev) => ({ ...prev, update: false }));
                   }}
-                  className="ml-2 px-2.5 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition font-sans text-base custom-update-btn flex items-center justify-center"
+                  className={`${secondaryButtonClass} w-full sm:w-auto`} 
                   disabled={buttonLoading.update}
                 >
-                  {buttonLoading.update && (
-                    <span className="loader mr-2"></span>
-                  )}
-                  {buttonLoading.update ? 'Updating...' : 'Update History'}
+                  {buttonLoading.update && <ButtonSpinner colorClass="border-teal-600" />}
+                  {buttonLoading.update ? 'Memperbarui...' : 'Update Riwayat'}
                 </button>
               </div>
-              {historyLoading && <p>Loading history...</p>}
-              {historyError && <p className="text-red-600">Error: {historyError}</p>}
-              {!historyLoading && history.length === 0 && <p>No history available.</p>}
-              {!historyLoading && history.length > 0 && (
-                <>
-                  <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-300 rounded p-2 bg-white text-gray-900">
-                    {history.map((item) => {
-                      const symptoms = item.symptoms || 'Deskripsi tidak tersedia.';
-                      const saran = item.recommendations && item.recommendations.length > 0 ? item.recommendations[0] : 'Tidak ada saran.';
-                      const text = `Diagnosis: ${item.diagnosis}\nConfidence: ${item.confidence}\nArti: ${symptoms}\nSaran: ${saran}`;
-                      return (
-                        <div
-                          key={item.id}
-                          className="p-2 bg-white rounded flex justify-between items-center font-sans text-base border-b last:border-b-0"
-                        >
-                          <pre className="whitespace-pre-wrap m-0 flex-grow mr-4 font-sans text-base">{text}</pre>
-                          <button
-                            onClick={async () => {
-                              setButtonLoading((prev) => ({ ...prev, delete: item.id }));
-                              await deleteHistoryItem(item.id);
-                              setButtonLoading((prev) => ({ ...prev, delete: null }));
-                            }}
-                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center justify-center text-base font-semibold"
-                            aria-label={`Delete history item ${item.diagnosis}`}
-                            disabled={buttonLoading.delete === item.id}
-                            style={{ fontSize: '1rem', fontWeight: 600, minWidth: '100px', width: buttonLoading.delete === item.id ? '130px' : '100px', transition: 'width 0.2s' }}
-                          >
-                            {buttonLoading.delete === item.id && (
-                              <span className="loader mr-2" style={{ width: '18px', height: '18px', borderWidth: '3px' }}></span>
-                            )}
-                            {buttonLoading.delete === item.id ? 'Loading...' : 'Delete'}
-                          </button>
-                        </div>
-                      );
-                    })}
+
+              {historyLoading && (
+                <div className="flex justify-center items-center my-6 p-4 bg-gray-50 rounded-lg">
+                    <ButtonSpinner colorClass="border-teal-600" />
+                    <p className="ml-2 text-gray-700">Memuat riwayat...</p>
+                </div>
+              )}
+              {historyError && <p className="text-red-600 p-4 bg-red-50 rounded-lg shadow">Error memuat riwayat: {historyError}</p>}
+
+              {!historyLoading && !historyError && (
+                history.length === 0 ? (
+                  <div className="text-center py-8 px-4 border border-gray-200 rounded-lg mt-4 bg-gray-50">
+                    <HistoryIcon />
+                    <p className="text-gray-700 font-semibold text-lg">Belum Ada Riwayat Diagnosis</p>
+                    <p className="text-sm text-gray-500 mt-1">Hasil pemindaian Anda akan muncul di sini.</p>
                   </div>
-                  <button
-                    onClick={async () => {
-                      setButtonLoading((prev) => ({ ...prev, clear: true }));
-                      await clearHistory();
-                      setTimeout(() => {
-                        setButtonLoading((prev) => ({ ...prev, clear: false }));
-                      }, 1000); // pastikan spinner terlihat minimal 1 detik
-                    }}
-                    className="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-28 flex items-center justify-center min-w-[70px] text-sm font-semibold"
-                    disabled={buttonLoading.clear}
-                  >
-                    {buttonLoading.clear && (
-                      <span className="loader mr-2"></span>
+                ) : (
+                  <>
+                    {/* === AWAL MODIFIKASI TAMPILAN ITEM RIWAYAT === */}
+                    <div className="space-y-4"> {/* Memberi jarak antar item riwayat */}
+                      {history.map((item) => {
+                        // Destrukturisasi properti item untuk kejelasan
+                        const { diagnosis: diagnosisNameFromHistory, confidence, symptoms, recommendations, id } = item;
+
+                        const gejalaText = symptoms || 'Deskripsi tidak tersedia.';
+                        // Gabungkan rekomendasi menjadi satu string dengan baris baru jika berupa array
+                        const saranText = Array.isArray(recommendations) && recommendations.length > 0 
+                                          ? recommendations.join('\n') 
+                                          : (typeof recommendations === 'string' ? recommendations : 'Tidak ada saran.');
+                        const confidenceValue = confidence !== undefined ? `${(parseFloat(confidence) * 100).toFixed(0)}%` : 'N/A';
+
+                        return (
+                          <div
+                            key={id}
+                            className="p-4 bg-white rounded-lg shadow-md border border-gray-200 flex flex-col sm:flex-row sm:items-center gap-x-4 gap-y-3 hover:shadow-lg transition-shadow duration-150"
+                          >
+                            {/* Area Konten Teks Riwayat */}
+                            <div className="flex-grow text-sm text-gray-800 space-y-2">
+                              <p>
+                                <strong className="font-semibold text-gray-900">Diagnosis:</strong> {diagnosisNameFromHistory || 'N/A'}
+                              </p>
+                              <p>
+                                <strong className="font-semibold text-gray-900">Keyakinan:</strong> {confidenceValue}
+                              </p>
+                              <div>
+                                <strong className="font-semibold text-gray-900 block mb-0.5">Arti/Gejala:</strong>
+                                <p className="whitespace-pre-line leading-relaxed text-gray-700">{gejalaText}</p>
+                              </div>
+                              <div>
+                                <strong className="font-semibold text-gray-900 block mb-0.5">Saran:</strong>
+                                <p className="whitespace-pre-line leading-relaxed text-gray-700">{saranText}</p>
+                              </div>
+                            </div>
+
+                            {/* Area Tombol Delete di Tengah */}
+                            <div className="flex justify-center items-center w-full sm:w-auto my-4 sm:my-0">
+                              <button
+                                onClick={async () => {
+                                  setButtonLoading((prev) => ({ ...prev, delete: id }));
+                                  await deleteHistoryItem(id);
+                                  setButtonLoading((prev) => ({ ...prev, delete: null }));
+                                }}
+                                className={"btn btn-destructive w-full"}
+                                aria-label={`Hapus riwayat ${diagnosisNameFromHistory}`}
+                                disabled={buttonLoading.delete === id}
+                              >
+                                {buttonLoading.delete === id && <ButtonSpinner />} 
+                                {buttonLoading.delete === id ? 'Menghapus...' : 'Delete'}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {/* === AKHIR MODIFIKASI TAMPILAN ITEM RIWAYAT === */}
+
+                    {history.length > 0 && (
+                        <button
+                        onClick={async () => {
+                            setButtonLoading((prev) => ({ ...prev, clear: true }));
+                            await clearHistory();
+                            setButtonLoading((prev) => ({ ...prev, clear: false }));
+                        }}
+                        className={"btn btn-destructive w-full mt-6"}
+                        disabled={buttonLoading.clear}
+                        >
+                        {buttonLoading.clear && <ButtonSpinner />} 
+                        {buttonLoading.clear ? 'Menghapus...' : 'Clear Semua Riwayat'}
+                        </button>
                     )}
-                    {buttonLoading.clear ? 'Loading...' : 'Clear History'}
-                  </button>
-                </>
+                  </>
+                )
               )}
             </div>
           </div>

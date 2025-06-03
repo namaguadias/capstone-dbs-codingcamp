@@ -19,10 +19,29 @@ const ProfileIcon = ({ className = "w-5 h-5" }) => (
   </svg>
 );
 
-const Navbar = ({ onNavigate, isOffline }) => {
+const Navbar = ({ onNavigate, isOffline, user }) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  // State untuk notifikasi login
+  const [showLoginNotif, setShowLoginNotif] = useState(false);
+  const [notifTimeout, setNotifTimeout] = useState(null);
+
+  // Fungsi untuk trigger notifikasi login
+  const triggerLoginNotif = () => {
+    setShowLoginNotif(true);
+    if (notifTimeout) clearTimeout(notifTimeout);
+    const timeout = setTimeout(() => setShowLoginNotif(false), 2500);
+    setNotifTimeout(timeout);
+  };
+
+  // Modifikasi handleNavigate agar trigger notifikasi jika akses halaman protected tanpa login
   const handleNavigate = (page) => {
+    if ((page === 'Profile' || page === 'scannow') && !user) {
+      triggerLoginNotif();
+      setIsOpen(false);
+      // Jangan langsung redirect ke login, biarkan user klik Login
+      return;
+    }
     onNavigate(page);
     setIsOpen(false);
   };
@@ -31,20 +50,24 @@ const Navbar = ({ onNavigate, isOffline }) => {
   const titleTextColor = "text-teal-700";
   const linkColor = "text-slate-600";
   const hoverAccentColor = "hover:text-teal-500";
-  const iconButtonColor = "text-teal-700";
-  const iconButtonHoverBg = "hover:bg-gray-100";
-
-  const logoutButtonDesktopClasses = "bg-rose-500 hover:bg-rose-600 text-white text-xs font-medium px-3 py-1.5 lg:px-4 lg:py-2 rounded-md transition-colors";
-  const roundIconButtonBaseClasses = `w-9 h-9 rounded-full flex items-center justify-center ${iconButtonHoverBg} focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-opacity-50 transition-colors`;
+  // const iconButtonColor = "text-teal-700";
+  // const logoutButtonDesktopClasses = "bg-rose-500 hover:bg-rose-600 text-white text-xs font-medium px-3 py-1.5 lg:px-4 lg:py-2 rounded-md transition-colors";
 
   // Calculate top offset based on offline popup visibility
   const topOffsetClass = isOffline ? 'top-10' : 'top-0'; // top-10 is 2.5rem = 40px approx
 
   return (
     <nav className={`${navbarBgColor} shadow-md fixed ${topOffsetClass} left-0 right-0 z-50 h-16 flex items-center px-4 sm:px-6 transition-top duration-300`}>
-      {/* Kontainer utama flex: items-center SAJA, tanpa justify-between */}
+      {/* Notifikasi login dibutuhkan */}
+      {showLoginNotif && (
+        <div className="fixed top-4 left-1/2 z-[9999] -translate-x-1/2 flex items-center px-5 py-3 rounded-lg shadow-lg bg-white border border-red-200 animate-fadeInSlideDown">
+          <svg className="w-6 h-6 text-red-500 mr-2 animate-bounce" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
+          </svg>
+          <span className="text-red-600 font-semibold text-sm">Anda harus login untuk mengakses fitur ini.</span>
+        </div>
+      )}
       <div className="w-full max-w-7xl mx-auto flex items-center">
-
         {/* 1. KIRI: Judul Aplikasi */}
         <div className="flex-shrink-0"> {/* Tidak boleh mengecil */}
           <div
@@ -69,38 +92,39 @@ const Navbar = ({ onNavigate, isOffline }) => {
             <li><button className={`text-sm font-medium ${linkColor} ${hoverAccentColor} px-2.5 py-1.5 lg:px-3 lg:py-2 rounded-md transition-colors`} onClick={() => handleNavigate('about')}>About Us</button></li>
             <li><button className={`text-sm font-medium ${linkColor} ${hoverAccentColor} px-2.5 py-1.5 lg:px-3 lg:py-2 rounded-md transition-colors`} onClick={() => handleNavigate('scannow')}>ScanNow</button></li>
           </ul>
-          {/* Di mobile, <ul> di atas disembunyikan, jadi div ini kosong namun tetap 'flex-grow',
-              sehingga mendorong judul dan ikon berjauhan. */}
         </div>
 
-        {/* 3. KANAN: Ikon-ikon */}
-        <div className="flex-shrink-0 flex items-center space-x-2 sm:space-x-3"> {/* Tidak boleh mengecil */}
-          <button // Tombol Ikon Profile
-            onClick={() => handleNavigate('Profile')}
-            className={`navbar-icon-button ${iconButtonColor} ${roundIconButtonBaseClasses}`}
-            aria-label="User Profile"
-          >
-            <ProfileIcon />
-          </button>
-
-          <div className="md:hidden"> {/* Hamburger hanya di mobile */}
+        {/* 3. KANAN: Ikon-ikon dan tombol Profile/Logout */}
+        <div className="flex-shrink-0 flex items-center space-x-2 sm:space-x-3">
+          {/* Profile & Logout (kanan) hanya jika login */}
+          {user && (
+            <>
+              <button
+                className="flex items-center gap-1 text-slate-600 hover:text-teal-500 px-2.5 py-1.5 lg:px-3 lg:py-2 rounded-md transition-colors text-sm font-medium"
+                onClick={() => handleNavigate('Profile')}
+              >
+                <ProfileIcon className="w-5 h-5" />
+                <span className="hidden sm:inline">Profile</span>
+              </button>
+              <button
+                style={{ backgroundColor: '#dc2626' }}
+                className="text-white text-xs font-medium px-3 py-1.5 lg:px-4 lg:py-2 rounded-md transition-colors hover:brightness-90 focus:brightness-90"
+                onClick={() => handleNavigate('logout')}
+              >
+                Logout
+              </button>
+            </>
+          )}
+          {/* Login (kanan) jika belum login */}
+          {!user && (
             <button
-              onClick={() => setIsOpen(!isOpen)}
-              className={`navbar-icon-button ${iconButtonColor} ${roundIconButtonBaseClasses}`}
-              aria-label="Toggle menu" aria-expanded={isOpen}
+              style={{ backgroundColor: '#16a34a' }}
+              className="text-white text-xs font-medium px-3 py-1.5 lg:px-4 lg:py-2 rounded-md transition-colors hover:brightness-90 focus:brightness-90"
+              onClick={() => handleNavigate('login')}
             >
-              {isOpen ? <CloseIcon /> : <HamburgerIcon />}
+              Login
             </button>
-          </div>
-
-          <div className="hidden md:block"> {/* Tombol Logout hanya di desktop */}
-            <button
-              className={logoutButtonDesktopClasses}
-              onClick={() => handleNavigate('logout')}
-            >
-              Logout
-            </button>
-          </div>
+          )}
         </div>
       </div>
 
@@ -112,19 +136,32 @@ const Navbar = ({ onNavigate, isOffline }) => {
           ${isOpen ? 'opacity-100 scale-y-100 visibility-visible' : 'opacity-0 scale-y-95 pointer-events-none visibility-hidden'}
         `}
       >
-        {/* ... isi dropdown ... */}
         <ul className="pt-2 pb-3 px-3 space-y-1">
           <li><button className={`block w-full text-left px-3 py-2.5 rounded-md text-base font-medium ${linkColor} hover:bg-teal-50 ${hoverAccentColor} transition-colors`} onClick={() => handleNavigate('home')}>Home</button></li>
           <li><button className={`block w-full text-left px-3 py-2.5 rounded-md text-base font-medium ${linkColor} hover:bg-teal-50 ${hoverAccentColor} transition-colors`} onClick={() => handleNavigate('about')}>About Us</button></li>
           <li><button className={`block w-full text-left px-3 py-2.5 rounded-md text-base font-medium ${linkColor} hover:bg-teal-50 ${hoverAccentColor} transition-colors`} onClick={() => handleNavigate('scannow')}>ScanNow</button></li>
+          {user ? (
+            <li><button className={`block w-full text-left px-3 py-2.5 rounded-md text-base font-medium ${linkColor} hover:bg-teal-50 ${hoverAccentColor} transition-colors`} onClick={() => handleNavigate('Profile')}>Profile</button></li>
+          ) : null}
           <li className="pt-1"><hr className="border-gray-200 my-1"/></li>
           <li>
-            <button
-              className="block w-full text-left bg-rose-500 hover:bg-rose-600 text-white font-medium px-3 py-2.5 rounded-md transition-colors mt-1"
-              onClick={() => handleNavigate('logout')}
-            >
-              Logout
-            </button>
+            {user ? (
+              <button
+                style={{ backgroundColor: '#dc2626' }}
+                className="block w-full text-left text-white text-xs font-medium px-3 py-1.5 lg:px-4 lg:py-2 rounded-md transition-colors hover:bg-red-700"
+                onClick={() => handleNavigate('logout')}
+              >
+                Logout
+              </button>
+            ) : (
+              <button
+                style={{ backgroundColor: '#16a34a' }}
+                className="block w-full text-left text-white text-xs font-medium px-3 py-1.5 lg:px-4 lg:py-2 rounded-md transition-colors hover:bg-green-700"
+                onClick={() => handleNavigate('login')}
+              >
+                Login
+              </button>
+            )}
           </li>
         </ul>
       </div>
@@ -133,3 +170,13 @@ const Navbar = ({ onNavigate, isOffline }) => {
 };
 
 export default Navbar;
+
+/* Tambahkan animasi fadeInSlideDown di bawah ini (bisa di index.css):
+.animate-fadeInSlideDown {
+  animation: fadeInSlideDown 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes fadeInSlideDown {
+  0% { opacity: 0; transform: translateY(-30px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+*/
