@@ -95,12 +95,12 @@ export default function Profile() {
                 <div className="pt-8 flex flex-col sm:flex-row sm:justify-end sm:space-x-3 space-y-3 sm:space-y-0">
                   {/* Tombol-tombol */}
                   {!editMode ? (
-                    <button type="button" onClick={handleToggleEdit} className="w-full sm:w-auto btn bg-gradient-to-r from-sky-500 to-cyan-500 text-white px-6 py-3 rounded-lg shadow-md hover:from-sky-600 hover:to-cyan-600 transition duration-150 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500">
+                    <button type="button" onClick={handleToggleEdit} className="w-full sm:w-auto btn bg-gradient-to-r from-emerald-400 via-green-500 to-lime-400 text-white px-6 py-3 rounded-lg shadow-lg hover:from-emerald-500 hover:to-lime-500 transition duration-150 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-400">
                       Update Profile
                     </button>
                   ) : (
                     <>
-                      <button type="button" onClick={handleSave} disabled={saving} className="w-full sm:w-auto btn bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-lg shadow-md hover:from-green-600 hover:to-emerald-600 transition duration-150 ease-in-out transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                      <button type="button" onClick={handleSave} disabled={saving} className="w-full sm:w-auto btn bg-gradient-to-r from-green-500 via-emerald-500 to-lime-400 text-white px-6 py-3 rounded-lg shadow-lg hover:from-green-600 hover:to-lime-500 transition duration-150 ease-in-out transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                         {saving ? (<span className="flex items-center justify-center"><svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Menyimpan...</span>) : 'Simpan Perubahan'}
                       </button>
                       <button type="button" onClick={handleToggleEdit} disabled={saving} className="w-full sm:w-auto btn bg-gray-200 text-gray-700 px-6 py-3 rounded-lg shadow-md hover:bg-gray-300 transition duration-150 ease-in-out disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
