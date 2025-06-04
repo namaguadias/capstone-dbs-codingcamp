@@ -1,37 +1,39 @@
-import React, { useState, useEffect, useRef } from 'react';
-import AuthPresenter, { DiagnosisAPI } from '../../../data/api';
+import React, { useState, useEffect, useRef } from "react";
+import AuthPresenter, { DiagnosisAPI } from "../../../data/api";
 
 export default function ScanNowPresenter({ children }) {
   const [image, setImage] = useState(null);
-  const [diagnosis, setDiagnosis] = useState('');
+  const [diagnosis, setDiagnosis] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   // Camera related states
   const [cameraOn, setCameraOn] = useState(false);
   const [stream, setStream] = useState(null);
   const streamRef = useRef(null);
   const videoRef = useRef(null);
+  // Tambahan untuk flip kamera
+  const [facingMode, setFacingMode] = useState("environment"); // 'user' untuk depan, 'environment' untuk belakang
 
   // History state
   const [history, setHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
-  const [historyError, setHistoryError] = useState('');
+  const [historyError, setHistoryError] = useState("");
 
   // Fetch diagnosis history
   const fetchHistory = async () => {
     setHistoryLoading(true);
-    setHistoryError('');
+    setHistoryError("");
     try {
       const data = await DiagnosisAPI.getHistory();
       // Ensure each history item has arti field, fallback to empty string if missing
-      const historyWithArti = data.map(item => ({
+      const historyWithArti = data.map((item) => ({
         ...item,
-        arti: item.arti || '',
+        arti: item.arti || "",
       }));
       setHistory(historyWithArti);
     } catch (err) {
-      setHistoryError(err.message); 
+      setHistoryError(err.message);
     } finally {
       setHistoryLoading(false);
     }
@@ -44,16 +46,19 @@ export default function ScanNowPresenter({ children }) {
 
   // Delete a diagnosis record by id
   const deleteHistoryItem = async (id) => {
-    setHistoryError('');
+    setHistoryError("");
     try {
       const prevHistoryLength = history.length;
       await DiagnosisAPI.deleteDiagnosis(id);
       await fetchHistory();
       // Simpan flag ke localStorage sebelum reload
-      localStorage.setItem('checkHistoryAfterReload', JSON.stringify({ prevHistoryLength }));
+      localStorage.setItem(
+        "checkHistoryAfterReload",
+        JSON.stringify({ prevHistoryLength })
+      );
       window.location.reload();
     } catch (err) {
-      if (err.message.includes('404')) {
+      if (err.message.includes("404")) {
         setHistory((prev) => prev.filter((item) => item.id !== id));
       } else {
         setHistoryError(err.message);
@@ -64,7 +69,7 @@ export default function ScanNowPresenter({ children }) {
   // Clear all history by deleting all records
   const clearHistory = async () => {
     setHistoryLoading(true);
-    setHistoryError('');
+    setHistoryError("");
     try {
       const prevHistoryLength = history.length;
       // Delete all history items sequentially
@@ -72,7 +77,7 @@ export default function ScanNowPresenter({ children }) {
         try {
           await DiagnosisAPI.deleteDiagnosis(item.id);
         } catch (err) {
-          if (err.message.includes('404')) {
+          if (err.message.includes("404")) {
             // Skip invalid id
             setHistory((prev) => prev.filter((h) => h.id !== item.id));
           } else {
@@ -83,7 +88,10 @@ export default function ScanNowPresenter({ children }) {
       // Refresh history from backend after clearing
       await fetchHistory();
       // Simpan flag ke localStorage sebelum reload
-      localStorage.setItem('checkHistoryAfterReload', JSON.stringify({ prevHistoryLength }));
+      localStorage.setItem(
+        "checkHistoryAfterReload",
+        JSON.stringify({ prevHistoryLength })
+      );
       window.location.reload();
     } catch (err) {
       setHistoryError(err.message);
@@ -97,24 +105,30 @@ export default function ScanNowPresenter({ children }) {
     const file = e.target.files[0];
     if (file) {
       // Validate file type
-      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+      const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
       if (!allowedTypes.includes(file.type)) {
-        setError('Only PNG, JPEG, and JPG files are allowed.');
+        setError("Only PNG, JPEG, and JPG files are allowed.");
         setImage(null);
-        setDiagnosis('');
+        setDiagnosis("");
         return;
       }
       setLoading(true);
-      setError('');
+      setError("");
       setImage(URL.createObjectURL(file));
       try {
         // Call API diagnose
         const result = await DiagnosisAPI.diagnoseImage(file);
         // Support both {label, confidence, ...} and {data: {label, ...}}
-        const label = result.label || (result.data && result.data.label) || 'undefined';
-        const confidence = result.confidence || (result.data && result.data.confidence) || 'undefined';
-        const arti = result.arti || (result.data && result.data.arti) || 'undefined';
-        const saran = result.saran || (result.data && result.data.saran) || 'undefined';
+        const label =
+          result.label || (result.data && result.data.label) || "undefined";
+        const confidence =
+          result.confidence ||
+          (result.data && result.data.confidence) ||
+          "undefined";
+        const arti =
+          result.arti || (result.data && result.data.arti) || "undefined";
+        const saran =
+          result.saran || (result.data && result.data.saran) || "undefined";
         setDiagnosis(
           `Diagnosis: ${label}\nConfidence: ${confidence}\nArti: ${arti}\nSaran: ${saran}`
         );
@@ -138,10 +152,10 @@ export default function ScanNowPresenter({ children }) {
           ]);
         } catch (err) {
           // Handle error silently or set error state if needed
-          console.error('Failed to save diagnosis history:', err);
+          console.error("Failed to save diagnosis history:", err);
         }
       } catch (err) {
-        setDiagnosis('');
+        setDiagnosis("");
         setError(err.message);
       } finally {
         setLoading(false);
@@ -152,15 +166,46 @@ export default function ScanNowPresenter({ children }) {
   // Start camera
   const startCamera = async () => {
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const constraints = {
+        video: { facingMode: { exact: facingMode } },
+      };
+      // Fallback jika facingMode tidak didukung
+      let mediaStream;
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+      } catch {
+        // Coba tanpa facingMode jika gagal
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
+      }
       setStream(mediaStream);
       streamRef.current = mediaStream;
       setCameraOn(true);
     } catch (err) {
-      console.error('Error accessing camera:', err);
+      console.error("Error accessing camera:", err);
       setCameraOn(false);
     }
   };
+
+  // Flip kamera (toggle facingMode)
+  const flipCamera = () => {
+    setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
+  };
+
+  // Restart camera jika facingMode berubah dan kamera sedang aktif
+  useEffect(() => {
+    if (cameraOn) {
+      // Stop current stream
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+        setStream(null);
+      }
+      startCamera();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [facingMode]);
 
   // Stop camera
   const stopCamera = () => {
@@ -176,44 +221,50 @@ export default function ScanNowPresenter({ children }) {
   const takePhoto = async () => {
     if (!videoRef.current) return;
     const video = videoRef.current;
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     // Convert canvas to blob for upload
     canvas.toBlob(async (blob) => {
       if (!blob) return;
       setLoading(true);
-      setError('');
-      setImage(canvas.toDataURL('image/png'));
+      setError("");
+      setImage(canvas.toDataURL("image/png"));
       try {
-        const file = new File([blob], 'photo.png', { type: 'image/png' });
+        const file = new File([blob], "photo.png", { type: "image/png" });
         const result = await DiagnosisAPI.diagnoseImage(file);
         // Support both {label, confidence, ...} and {data: {label, ...}}
-        const label = result.label || (result.data && result.data.label) || 'undefined';
-        const confidence = result.confidence || (result.data && result.data.confidence) || 'undefined';
-        const arti = result.arti || (result.data && result.data.arti) || 'undefined';
-        const saran = result.saran || (result.data && result.data.saran) || 'undefined';
+        const label =
+          result.label || (result.data && result.data.label) || "undefined";
+        const confidence =
+          result.confidence ||
+          (result.data && result.data.confidence) ||
+          "undefined";
+        const arti =
+          result.arti || (result.data && result.data.arti) || "undefined";
+        const saran =
+          result.saran || (result.data && result.data.saran) || "undefined";
         setDiagnosis(
           `Diagnosis: ${label}\nConfidence: ${confidence}\nArti: ${arti}\nSaran: ${saran}`
         );
         // Fetch updated history after diagnosis
         await fetchHistory();
       } catch (err) {
-        setDiagnosis('');
+        setDiagnosis("");
         setError(err.message);
       } finally {
         setLoading(false);
       }
-    }, 'image/png');
+    }, "image/png");
   };
 
   // Reset scan to allow new upload or photo
   const resetScan = () => {
     setImage(null);
-    setDiagnosis('');
-    setError('');
+    setDiagnosis("");
+    setError("");
     setLoading(false);
   };
 
@@ -248,8 +299,8 @@ export default function ScanNowPresenter({ children }) {
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       if (streamRef.current) {
@@ -258,19 +309,19 @@ export default function ScanNowPresenter({ children }) {
         setStream(null);
         setCameraOn(false);
       }
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
   // useEffect untuk cek notifikasi setelah reload
   useEffect(() => {
-    const checkFlag = localStorage.getItem('checkHistoryAfterReload');
+    const checkFlag = localStorage.getItem("checkHistoryAfterReload");
     if (checkFlag) {
       const { prevHistoryLength } = JSON.parse(checkFlag);
-      localStorage.removeItem('checkHistoryAfterReload');
+      localStorage.removeItem("checkHistoryAfterReload");
       if (history.length === prevHistoryLength) {
-        alert('History belum berubah, silakan tekan tombol update history.');
+        alert("History belum berubah, silakan tekan tombol update history.");
       }
     }
   }, [history]);
@@ -293,5 +344,7 @@ export default function ScanNowPresenter({ children }) {
     deleteHistoryItem,
     clearHistory,
     videoRef,
+    flipCamera,
+    facingMode,
   });
 }
