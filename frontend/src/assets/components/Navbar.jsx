@@ -20,7 +20,7 @@ const ProfileIcon = ({ className = "w-5 h-5" }) => (
 );
 
 const Navbar = ({ onNavigate, isOffline, user }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // State untuk menu mobile
 
   // State untuk notifikasi login
   const [showLoginNotif, setShowLoginNotif] = useState(false);
@@ -34,27 +34,22 @@ const Navbar = ({ onNavigate, isOffline, user }) => {
     setNotifTimeout(timeout);
   };
 
-  // Modifikasi handleNavigate agar trigger notifikasi jika akses halaman protected tanpa login
+  // Modifikasi handleNavigate
   const handleNavigate = (page) => {
     if ((page === 'Profile' || page === 'scannow') && !user) {
       triggerLoginNotif();
-      setIsOpen(false);
-      // Jangan langsung redirect ke login, biarkan user klik Login
+      setIsOpen(false); // Tutup menu jika notifikasi muncul
       return;
     }
     onNavigate(page);
-    setIsOpen(false);
+    setIsOpen(false); // Selalu tutup menu setelah navigasi
   };
 
   const navbarBgColor = "bg-white";
   const titleTextColor = "text-teal-700";
   const linkColor = "text-slate-600";
   const hoverAccentColor = "hover:text-teal-500";
-  // const iconButtonColor = "text-teal-700";
-  // const logoutButtonDesktopClasses = "bg-rose-500 hover:bg-rose-600 text-white text-xs font-medium px-3 py-1.5 lg:px-4 lg:py-2 rounded-md transition-colors";
-
-  // Calculate top offset based on offline popup visibility
-  const topOffsetClass = isOffline ? 'top-10' : 'top-0'; // top-10 is 2.5rem = 40px approx
+  const topOffsetClass = isOffline ? 'top-10' : 'top-0';
 
   return (
     <nav className={`${navbarBgColor} shadow-md fixed ${topOffsetClass} left-0 right-0 z-50 h-16 flex items-center px-4 sm:px-6 transition-top duration-300`}>
@@ -69,7 +64,7 @@ const Navbar = ({ onNavigate, isOffline, user }) => {
       )}
       <div className="w-full max-w-7xl mx-auto flex items-center">
         {/* 1. KIRI: Judul Aplikasi */}
-        <div className="flex-shrink-0"> {/* Tidak boleh mengecil */}
+        <div className="flex-shrink-0">
           <div
             className={`text-xl font-bold cursor-pointer ${titleTextColor} ${hoverAccentColor} transition-colors`}
             onClick={() => handleNavigate('home')}
@@ -80,13 +75,7 @@ const Navbar = ({ onNavigate, isOffline, user }) => {
         </div>
 
         {/* 2. TENGAH: Spacer (Mobile) / Navigasi Link (Desktop) */}
-        {/* flex-grow membuat div ini mengambil semua sisa ruang */}
-        {/* md:flex-grow-0 di desktop jika Anda ingin link navigasi tidak mengambil semua ruang jika sedikit,
-            namun biasanya flex-grow di sini baik untuk desktop juga untuk centering yang lebih baik jika link sedikit.
-            Untuk kasus ini, kita biarkan flex-grow di semua ukuran agar ia berfungsi sebagai spacer di mobile.
-        */}
         <div className="flex-grow flex md:justify-center items-center md:px-4">
-          {/* Link Navigasi Desktop - disembunyikan di mobile oleh 'hidden md:flex' */}
           <ul className="hidden md:flex space-x-2 lg:space-x-4 items-center">
             <li><button className={`text-sm font-medium ${linkColor} ${hoverAccentColor} px-2.5 py-1.5 lg:px-3 lg:py-2 rounded-md transition-colors`} onClick={() => handleNavigate('home')}>Home</button></li>
             <li><button className={`text-sm font-medium ${linkColor} ${hoverAccentColor} px-2.5 py-1.5 lg:px-3 lg:py-2 rounded-md transition-colors`} onClick={() => handleNavigate('about')}>About Us</button></li>
@@ -94,41 +83,57 @@ const Navbar = ({ onNavigate, isOffline, user }) => {
           </ul>
         </div>
 
-        {/* 3. KANAN: Ikon-ikon dan tombol Profile/Logout */}
+        {/* 3. KANAN: Tombol Profile/Logout (Desktop) DAN Tombol Hamburger untuk Mobile */}
         <div className="flex-shrink-0 flex items-center space-x-2 sm:space-x-3">
-          {/* Profile & Logout (kanan) hanya jika login */}
-          {user && (
-            <>
+          {/* === AWAL PERUBAHAN: Wrapper untuk Tombol Desktop === */}
+          <div className="hidden md:flex items-center space-x-2 sm:space-x-3">
+            {/* Profile & Logout (kanan) hanya jika login */}
+            {user && (
+              <>
+                <button
+                  className="flex items-center gap-1 text-slate-600 hover:text-teal-500 px-2.5 py-1.5 lg:px-3 lg:py-2 rounded-md transition-colors text-sm font-medium"
+                  onClick={() => handleNavigate('Profile')}
+                >
+                  <ProfileIcon className="w-5 h-5" />
+                  <span className="hidden sm:inline">Profile</span>
+                </button>
+                <button
+                  style={{ backgroundColor: '#dc2626' }}
+                  className="text-white text-xs font-medium px-3 py-1.5 lg:px-4 lg:py-2 rounded-md transition-colors hover:brightness-90 focus:brightness-90"
+                  onClick={() => handleNavigate('logout')}
+                >
+                  Logout
+                </button>
+              </>
+            )}
+            {/* Login (kanan) jika belum login */}
+            {!user && (
               <button
-                className="flex items-center gap-1 text-slate-600 hover:text-teal-500 px-2.5 py-1.5 lg:px-3 lg:py-2 rounded-md transition-colors text-sm font-medium"
-                onClick={() => handleNavigate('Profile')}
-              >
-                <ProfileIcon className="w-5 h-5" />
-                <span className="hidden sm:inline">Profile</span>
-              </button>
-              <button
-                style={{ backgroundColor: '#dc2626' }}
+                style={{ backgroundColor: '#16a34a' }}
                 className="text-white text-xs font-medium px-3 py-1.5 lg:px-4 lg:py-2 rounded-md transition-colors hover:brightness-90 focus:brightness-90"
-                onClick={() => handleNavigate('logout')}
+                onClick={() => handleNavigate('login')}
               >
-                Logout
+                Login
               </button>
-            </>
-          )}
-          {/* Login (kanan) jika belum login */}
-          {!user && (
+            )}
+          </div>
+          {/* === AKHIR PERUBAHAN === */}
+
+          {/* Tombol Hamburger (Hanya Mobile) */}
+          <div className="md:hidden"> {/* Wrapper ini memastikan tombol hamburger hanya tampil di mobile */}
             <button
-              style={{ backgroundColor: '#16a34a' }}
-              className="text-white text-xs font-medium px-3 py-1.5 lg:px-4 lg:py-2 rounded-md transition-colors hover:brightness-90 focus:brightness-90"
-              onClick={() => handleNavigate('login')}
+              onClick={() => setIsOpen(!isOpen)} // Fungsi untuk toggle state isOpen
+              className={`navbar-hamburger-button p-1.5 rounded-md ${linkColor} ${hoverAccentColor} focus:outline-none focus:ring-2 focus:ring-inset focus:ring-teal-500`}
+              aria-label="Toggle menu"
+              aria-expanded={isOpen}
             >
-              Login
+              {isOpen ? <CloseIcon className="w-6 h-6" /> : <HamburgerIcon className="w-6 h-6" />}
             </button>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* Menu Mobile Dropdown (Tidak ada perubahan struktur di sini) */}
+      {/* Menu Mobile Dropdown (Struktur tidak diubah, hanya perilakunya dikontrol oleh isOpen) */}
       <div
         className={`
           md:hidden absolute top-16 left-0 right-0 ${navbarBgColor} shadow-xl border-t border-gray-100 z-40
@@ -140,15 +145,15 @@ const Navbar = ({ onNavigate, isOffline, user }) => {
           <li><button className={`block w-full text-left px-3 py-2.5 rounded-md text-base font-medium ${linkColor} hover:bg-teal-50 ${hoverAccentColor} transition-colors`} onClick={() => handleNavigate('home')}>Home</button></li>
           <li><button className={`block w-full text-left px-3 py-2.5 rounded-md text-base font-medium ${linkColor} hover:bg-teal-50 ${hoverAccentColor} transition-colors`} onClick={() => handleNavigate('about')}>About Us</button></li>
           <li><button className={`block w-full text-left px-3 py-2.5 rounded-md text-base font-medium ${linkColor} hover:bg-teal-50 ${hoverAccentColor} transition-colors`} onClick={() => handleNavigate('scannow')}>ScanNow</button></li>
-          {user ? (
+          {user && ( // Tambahkan Profile ke dropdown mobile jika user login
             <li><button className={`block w-full text-left px-3 py-2.5 rounded-md text-base font-medium ${linkColor} hover:bg-teal-50 ${hoverAccentColor} transition-colors`} onClick={() => handleNavigate('Profile')}>Profile</button></li>
-          ) : null}
+          )}
           <li className="pt-1"><hr className="border-gray-200 my-1"/></li>
           <li>
             {user ? (
               <button
                 style={{ backgroundColor: '#dc2626' }}
-                className="block w-full text-left text-white text-xs font-medium px-3 py-1.5 lg:px-4 lg:py-2 rounded-md transition-colors hover:bg-red-700"
+                className="block w-full text-left text-white text-sm font-medium px-3 py-2.5 rounded-md transition-colors hover:bg-red-700"
                 onClick={() => handleNavigate('logout')}
               >
                 Logout
@@ -156,7 +161,7 @@ const Navbar = ({ onNavigate, isOffline, user }) => {
             ) : (
               <button
                 style={{ backgroundColor: '#16a34a' }}
-                className="block w-full text-left text-white text-xs font-medium px-3 py-1.5 lg:px-4 lg:py-2 rounded-md transition-colors hover:bg-green-700"
+                className="block w-full text-left text-white text-sm font-medium px-3 py-2.5 rounded-md transition-colors hover:bg-green-700"
                 onClick={() => handleNavigate('login')}
               >
                 Login
@@ -170,13 +175,3 @@ const Navbar = ({ onNavigate, isOffline, user }) => {
 };
 
 export default Navbar;
-
-/* Tambahkan animasi fadeInSlideDown di bawah ini (bisa di index.css):
-.animate-fadeInSlideDown {
-  animation: fadeInSlideDown 0.5s cubic-bezier(0.4,0,0.2,1);
-}
-@keyframes fadeInSlideDown {
-  0% { opacity: 0; transform: translateY(-30px) scale(0.95); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-*/

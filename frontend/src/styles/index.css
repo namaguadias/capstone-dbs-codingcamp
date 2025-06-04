@@ -30,6 +30,17 @@
   --color-footer-heading: #E5E7EB;   /* Teks judul di footer (Tailwind gray-200) */
   --color-footer-link-hover: #FFFFFF;
 
+  /* === AWAL PENAMBAHAN: Variabel Warna untuk Form Login & Register === */
+  --color-form-background: #FFFFFF;
+  --color-form-input-bg: #F9FAFB;
+  --color-form-input-border: #E5E7EB;
+  --color-form-input-focus-border: var(--color-theme-primary);
+  --color-form-button-primary-bg: #111827; /* Default untuk tombol form, Register.jsx akan override dengan Tailwind jika !important dihapus */
+  --color-form-button-primary-text: #FFFFFF;
+  --color-form-button-primary-hover-bg: #374151;
+  --color-form-text-light: #6B7280;
+  --color-form-link: var(--color-theme-secondary); /* Warna default untuk link di form */
+  /* === AKHIR PENAMBAHAN: Variabel Warna untuk Form Login & Register === */
 
   color: var(--color-text-body);
   background-color: var(--color-page-background);
@@ -187,7 +198,7 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgba(44, 122, 123, 0.25);
 }
 
-.login-title {
+.login-title { /* Juga bisa digunakan untuk .register-title jika diinginkan */
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 1rem;
@@ -283,23 +294,41 @@ textarea:focus {
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; }}
 @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; }}
 @keyframes shimmer { 0% { transform: translateX(0); } 100% { transform: translateX(calc(100% + 150px));  }}
-
-/* === AWAL TAMBAHAN BARU: Keyframe dan Kelas Animasi Modal (untuk Home.jsx) === */
 @keyframes modalShow {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
 }
-
-.animate-fadeIn { animation: fadeIn 0.5s ease-in forwards;} /* Pastikan ini sudah ada dan sesuai */
-
-.animate-fadeInModal {
-  animation: fadeIn 0.3s ease-out forwards; /* Menggunakan keyframe fadeIn yang sudah ada */
+/* === AWAL PENAMBAHAN: Keyframes untuk Animasi Slideshow Login/Register === */
+@keyframes slideInFromRight {
+  from { opacity: 0; transform: translateX(50%); }
+  to { opacity: 1; transform: translateX(0); }
 }
-.animate-modalShow {
-  animation: modalShow 0.3s ease-out forwards; /* Menggunakan keyframe modalShow baru */
+@keyframes slideInFromLeft {
+  from { opacity: 0; transform: translateX(-50%); }
+  to { opacity: 1; transform: translateX(0); }
 }
-/* === AKHIR TAMBAHAN BARU: Keyframe dan Kelas Animasi Modal === */
+/* === AKHIR PENAMBAHAN: Keyframes untuk Animasi Slideshow Login/Register === */
 
+/* === AWAL PENAMBAHAN: Layer Utilities untuk Animasi Slideshow & Modal === */
+@layer utilities {
+  .animate-slideInFromRight {
+    animation: slideInFromRight 1s ease-in-out;
+  }
+  .animate-slideInFromLeft {
+    animation: slideInFromLeft 1s ease-in-out;
+  }
+  /* Kelas animasi modal yang sudah ada di file asli Anda */
+  .animate-fadeInModal {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+  .animate-modalShow {
+    animation: modalShow 0.3s ease-out forwards;
+  }
+}
+/* === AKHIR PENAMBAHAN: Layer Utilities untuk Animasi Slideshow & Modal === */
+
+.animate-fadeIn { animation: fadeIn 0.5s ease-in forwards;}
+/* .animate-fadeInModal dan .animate-modalShow kini ada di @layer utilities */
 
 @media (prefers-color-scheme: light) { :root {} a:hover { color: var(--color-theme-primary-light); } button {}}
 .loading-profile .skeleton { background-color: #e2e8f0; border-radius: 4px; margin-bottom: 1rem; position: relative; overflow: hidden;}
@@ -309,18 +338,86 @@ textarea:focus {
 .loading-profile .text { width: 100%; height: 16px; border-radius: 6px;}
 .loading-profile .text.short { width: 30%;}
 
-/* === AWAL TAMBAHAN BARU: CSS untuk Scrollbar-hide (untuk Home.jsx) === */
-/* Menyembunyikan scrollbar untuk browser berbasis WebKit (Chrome, Safari, Edge baru) */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* === AWAL PENAMBAHAN: Styling Spesifik untuk Form Login & Register === */
+.login-input,
+.register-input {
+  width: 100% !important;
+  padding: 0.75rem 1rem !important;
+  background-color: var(--color-form-input-bg) !important;
+  border: 1px solid var(--color-form-input-border) !important;
+  border-radius: 0.5rem !important; /* Lebih besar dari rounded-md Tailwind */
+  font-size: 0.875rem !important;
+  color: var(--color-text-body) !important;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  margin: 0 !important; /* Override margin default dari input dasar */
+}
+.login-input::placeholder,
+.register-input::placeholder {
+  color: var(--color-text-muted);
+}
+.login-input:focus,
+.register-input:focus {
+  outline: none !important;
+  border-color: var(--color-form-input-focus-border) !important;
+  box-shadow: 0 0 0 3px var(--color-theme-primary-light) !important; /* Efek glow saat focus */
+  background-color: #fff !important;
 }
 
-/* Menyembunyikan scrollbar untuk IE dan Edge (versi lama) & Firefox */
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;     /* Firefox */
+textarea.register-input { /* Untuk field Address di Register */
+  min-height: 80px !important;
+  resize: vertical;
 }
-/* === AKHIR TAMBAHAN BARU: CSS untuk Scrollbar-hide === */
+select.register-input { /* Untuk field Gender di Register */
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 1.25em 1.25em !important;
+  padding-right: 2.5rem !important;
+}
+
+.login-button,
+.register-button { /* .register-button akan menggunakan style ini karena !important */
+  width: 100% !important;
+  padding: 0.75rem 1rem !important;
+  background-color: var(--color-form-button-primary-bg) !important; /* gray-900, akan override bg-sky-500 di Register.jsx */
+  color: var(--color-form-button-primary-text) !important;
+  font-weight: 500 !important; /* Lebih tipis dari font-semibold Tailwind */
+  font-size: 0.875rem !important;
+  border-radius: 0.5rem !important; /* Lebih besar dari rounded-md Tailwind */
+  border: none !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease-in-out;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  margin-top: 0.5rem !important; /* Override mt-6 (1.5rem) di Register.jsx */
+}
+.login-button:hover,
+.register-button:hover {
+  background-color: var(--color-form-button-primary-hover-bg) !important; /* gray-700, akan override hover:bg-sky-600 */
+}
+.login-button:disabled,
+.register-button:disabled {
+  opacity: 0.7 !important; /* Override disabled:opacity-50 Tailwind */
+  cursor: not-allowed !important;
+}
+
+.login-error,
+.register-error {
+  background-color: #FEE2E2 !important;
+  border: 1px solid #F87171 !important; /* Mengganti border-l-4 di Login.jsx */
+  color: #B91C1C !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 0.375rem !important; /* rounded-md */
+  margin-bottom: 1rem !important; /* mb-4 */
+  font-size: 0.875rem !important; /* text-sm */
+  text-align: left !important;
+}
+/* === AKHIR PENAMBAHAN: Styling Spesifik untuk Form Login & Register === */
 
 
 @media screen and (max-width: 768px) {
@@ -354,43 +451,30 @@ textarea:focus {
   h3, .text-2xl { font-size: 1.25rem !important; margin-bottom: 0.75rem !important; }
   .login-title { font-size: 1.8rem !important; }
 
-  /* ATURAN UMUM YANG MEMBERIKAN BACKGROUND PUTIH KE BANYAK DIV */
   .page-container,
-  div[class*="max-w-"] { /* Selektor ini menargetkan semua div yang kelasnya mengandung "max-w-" */
+  div[class*="max-w-"] {
     width: auto !important;
     max-width: none !important;
     margin: 1rem !important;
     padding: 1rem !important;
     box-sizing: border-box;
-    background-color: var(--color-card-background) !important; /* Ini yang membuat background putih */
+    background-color: var(--color-card-background) !important;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
-  /* === AWAL PERBAIKAN SPESIFIK UNTUK HERO SECTION PADA MOBILE === */
-  /* Kita perlu selektor yang SANGAT SPESIFIK untuk menimpa aturan di atas HANYA untuk div di dalam hero.
-     Asumsi Hero Section memiliki kelas 'bg-sky-700' dan div di dalamnya adalah 'max-w-3xl mx-auto'.
-     Jika Hero Section Anda tidak memiliki ID, Anda bisa menambahkannya di JSX, misal: <section id="hero-section" ... >
-     Lalu gunakan ID di CSS: #hero-section > div.max-w-3xl { ... } ini akan lebih kuat.
-
-     Untuk sekarang, kita coba dengan kelas yang ada:
-  */
   section[class*="bg-sky-700"] > div[class*="max-w-3xl"][class*="mx-auto"] {
-    background-color: transparent !important; /* SANGAT PENTING: Kembalikan jadi transparan */
-    box-shadow: none !important;             /* Hapus bayangan */
-    border-radius: 0 !important;            /* Hapus sudut melengkung */
-    padding: 0 !important;                  /* Hapus padding tambahan dari aturan umum */
-    /* Margin diatur oleh mx-auto dari Tailwind, max-width juga dari Tailwind, jadi tidak perlu override di sini jika yang atas bekerja */
-    /* Pastikan width 100% agar mx-auto bekerja dengan max-width yang ada */
-    width: 100% !important; 
-    max-width: 48rem !important; /* Kembalikan max-w-3xl (48rem) Tailwind */
-    margin-left: auto !important; /* Kembalikan mx-auto Tailwind */
-    margin-right: auto !important; /* Kembalikan mx-auto Tailwind */
-    margin-top: 0 !important; /* Hapus margin 1rem dari aturan umum */
-    margin-bottom: 0 !important; /* Hapus margin 1rem dari aturan umum */
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 48rem !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
   }
-  /* === AKHIR PERBAIKAN SPESIFIK UNTUK HERO SECTION PADA MOBILE === */
-
 
   nav > div.max-w-7xl {
     width: 100% !important;
@@ -399,7 +483,7 @@ textarea:focus {
     margin-bottom: 0 !important;
     margin-left: auto !important;
     margin-right: auto !important;
-    padding: 0 !important;
+    padding: 0 !important; /* Padding diatur oleh child div di Navbar.jsx */
     background-color: transparent !important;
     box-shadow: none !important;
     border-radius: 0 !important;
@@ -414,15 +498,16 @@ textarea:focus {
 
   input[type="text"], input[type="email"], input[type="password"],
   input[type="number"], select, textarea {
-    padding: 0.9rem 1rem;
+    padding: 0.9rem 1rem; /* Ukuran padding mobile untuk input global */
     font-size: 1rem;
-    -webkit-appearance: none;
+    -webkit-appearance: none; /* Hapus styling default iOS */
+    /* font-size: 16px !important; untuk iOS agar tidak auto-zoom, 1rem biasanya sudah cukup */
   }
 
   button, .btn, .btn-primary, .btn-secondary, .btn-destructive, .page-button, .custom-update-btn {
     width: 100% !important;
     max-width: none !important;
-    padding: 0.9em 1.2em !important;
+    padding: 0.9em 1.2em !important; /* Padding lebih besar untuk mobile */
     font-weight: 500;
     margin-left: 0 !important;
     margin-right: 0 !important;
@@ -440,7 +525,7 @@ textarea:focus {
   .button-group-stack-mobile button { margin-top: 0; }
   .content-card-popup {  display: none !important; }
   section[class*="hover:scale-105"], div[class*="hover:scale-105"] { transform: none !important; transition: none !important; }
-  input, textarea, select { font-size: 16px;  }
+  input, textarea, select { font-size: 16px;  } /* Pastikan font-size 16px untuk iOS zoom */
 
 
   .feature-card-arrow-button {
@@ -459,10 +544,10 @@ textarea:focus {
   }
 
   footer.bg-slate-800 {
-    background-color: var(--color-footer-background) !important;
-    color: var(--color-footer-text) !important;
+    background-color: #1F2937 !important;
+    color: #9CA3AF !important;
     padding-top: 2.5rem !important;
-    padding-bottom: 1.5rem !important;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom)) !important; /* Menambahkan safe area */
     margin-top: 2rem !important;
     text-align: left !important;
   }
@@ -532,13 +617,9 @@ textarea:focus {
 
 } /* Akhir dari @media screen and (max-width: 768px) */
 
-/* ===================================================================== */
-/* AWAL MODIFIKASI/PENGGANTIAN UNTUK TOMBOL CLOSE MODAL                 */
-/* Pastikan definisi .disease-modal-close yang lama sudah dihapus/dikomentari */
-/* ===================================================================== */
 
 .disease-modal-close {
-  position: absolute !important; 
+  position: absolute !important;
   top: 12px !important;
   right: 12px !important;
   width: 32px !important;
@@ -555,7 +636,6 @@ textarea:focus {
   border-radius: 50% !important;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
 
-  /* color: var(--color-theme-secondary) !important; /* Tidak perlu, SVG di-style langsung */
   cursor: pointer !important;
   transition: background-color 0.2s, transform 0.2s !important;
   z-index: 20 !important;
@@ -566,7 +646,7 @@ textarea:focus {
 .disease-modal-close svg {
   width: 16px !important;
   height: 16px !important;
-  stroke: var(--color-theme-secondary) !important; /* Warna ikon X biru dari variabel */
+  stroke: var(--color-theme-secondary) !important;
   stroke-width: 2.5px !important;
   fill: none !important;
   pointer-events: none !important;
@@ -597,59 +677,44 @@ textarea:focus {
   .disease-modal-close svg {
     width: 18px !important;
     height: 18px !important;
-    /* Jika ingin ikon X putih di mobile (misalnya jika background tombol jadi gelap): */
-    /* stroke: #FFFFFF !important; */
   }
-}
-/* === AKHIR MODIFIKASI/PENGGANTIAN UNTUK TOMBOL CLOSE MODAL === */
 
-
-/* Sisa CSS Anda yang terkait media query untuk modal, dll. */
-/* Pastikan tidak ada definisi .disease-modal-close lain yang bertentangan di bawah ini */
-
-@media (max-width: 600px) {
-  .max-w-lg { /* Ini untuk modal, bukan hero */
+  .max-w-lg {
     max-width: 98vw !important;
     border-radius: 14px !important;
     margin: 0 1vw !important;
   }
-  .rounded-2xl { /* Ini untuk modal, bukan hero */
+  .rounded-2xl {
     border-radius: 14px !important;
   }
-  img[class*="rounded-t-xl"] { /* Ini untuk gambar di modal, bukan hero */
+  img[class*="rounded-t-xl"] { /* Lebih spesifik untuk gambar di modal */
     height: 170px !important;
     border-radius: 14px 14px 0 0 !important;
   }
-  /* Selector ini mungkin perlu lebih spesifik untuk area teks modal Anda */
-  /* Misalnya: .my-modal-text-content (jika Anda menambahkan kelas kustom di JSX) */
-  div[class*="px-4 pt-5 pb-5"], div[class*="sm:px-6 sm:pt-6 sm:pb-6"] { /* Ini untuk padding konten modal */
+  div[class*="px-4 pt-5 pb-5"], div[class*="sm:px-6 sm:pt-6 sm:pb-6"] { /* Untuk konten modal */
     padding-left: 1.1rem !important;
     padding-right: 1.1rem !important;
-    padding-top: 1.1rem !important; /* Pastikan padding atas cukup jika tombol besar */
+    padding-top: 1.1rem !important;
     padding-bottom: 1.1rem !important;
   }
-  /* Selector ini mungkin perlu lebih spesifik untuk judul modal Anda */
-  h3[class*="text-xl sm:text-2xl"] { /* Ini untuk judul modal */
+  h3[class*="text-xl sm:text-2xl"] { /* Untuk judul modal */
     font-size: 1.15rem !important;
     margin-bottom: 0.7rem !important;
   }
-  /* Selector ini mungkin perlu lebih spesifik untuk paragraf deskripsi */
-  p[class*="text-gray-700"] { /* Ini untuk teks di modal */
+  p[class*="text-gray-700"] { /* Untuk teks deskripsi modal */
     font-size: 0.97rem !important;
   }
 }
 
 @media (min-width: 601px) {
-  /* Selector ini mungkin perlu lebih spesifik untuk modal Anda */
-  .max-w-lg { /* Ini untuk modal, bukan hero */
+  .max-w-lg {
     max-width: 420px !important;
     border-radius: 18px !important;
   }
-  /* Selector ini mungkin perlu lebih spesifik untuk modal Anda */
-  .rounded-2xl { /* Ini untuk modal, bukan hero */
+  .rounded-2xl {
     border-radius: 18px !important;
   }
-  img[class*="rounded-t-xl"] { /* Ini untuk gambar di modal, bukan hero */
+  img[class*="rounded-t-xl"] { /* Lebih spesifik untuk gambar di modal */
     height: 220px !important;
     border-radius: 18px 18px 0 0 !important;
   }
@@ -688,4 +753,16 @@ textarea:focus {
 .custom-update-btn:focus-visible {
   outline: 2px solid var(--color-theme-secondary);
   outline-offset: 2px;
+}
+
+footer.bg-slate-800 {
+  background-color: var(--color-footer-background) !important;
+  color: var(--color-footer-text) !important;
+}
+
+@media screen and (max-width: 768px) {
+  footer.bg-slate-800 {
+    background-color: #1F2937 !important;
+    color: #9CA3AF !important;
+  }
 }
